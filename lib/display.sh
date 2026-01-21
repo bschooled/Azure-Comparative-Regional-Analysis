@@ -246,62 +246,92 @@ display_quota_summary() {
     
     print_box "SERVICE QUOTA ANALYSIS"
     
-    # Count total resources needing quota in source region
-    local resources_needing_quota=$(jq '.data | 
-        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) | 
-        length' "$INVENTORY_FILE" 2>/dev/null || echo "0")
+    # Calculate resources that would exceed quota in target region
+    local source_quota=$(awk -F',' '$1 == "'$SOURCE_REGION'" {sum+=$5; count++} END {print count";"sum}' "$QUOTA_SUMMARY_FILE")
+    local target_quota=$(awk -F',' '$1 == "'$TARGET_REGION'" {sum+=$5; count++} END {print count";"sum}' "$QUOTA_SUMMARY_FILE")
     
-    print_kv "Resources Needing Quota (Source)" "$resources_needing_quota" "${BLUE}"
+    IFS=';' read -r source_quota_count source_quota_usage <<< "$source_quota"
+    IFS=';' read -r target_quota_count target_quota_usage <<< "$target_quota"
     
-    # Show top 5 resources by count
-    if [[ $resources_needing_quota -gt 0 ]]; then
-        echo ""
-        printf "  ${BLUE}Top 5 Resources in Source Region:${NC}\n"
+    # Calculate resources exceeding target quota
+    local resources_exceeding_quota=0
+    if [[ -n "$target_quota_count" && $target_quota_count -gt 0 ]]; then
+        # Count tuples where usage exceeds target available quota
+        resources_exceeding_quota=$(jq '.data | 
+            map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) | 
+            length' "$INVENTORY_FILE" 2>/dev/null || echo "0")
         
-        jq '.data |
-            map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) |
-            group_by(.type) |
-            map({
-                type: (.[0].type | split("/")[1] // .[0].type),
-                count: length
-            }) |
-            sort_by(-.count) |
-            .[:5]' "$INVENTORY_FILE" 2>/dev/null | \
-        jq -r '.[] | "    \(.type): \(.count) resource(s)"' | while read -r line; do
-            printf "    %s\n" "$line"
-        done
+        # Check if source usage would fit in target quota
+        if [[ -n "$source_quota_usage" && -n "$target_quota_usage" ]] && [[ $source_quota_usage -le $target_quota_usage ]]; then
+            resources_exceeding_quota=0
+        fi
     fi
     
-    # Show quota metrics if available
+    # Display resources needing quota (those that exceed target)
+    if [[ $resources_exceeding_quota -gt 0 ]]; then
+        print_warning_item "Resources exceeding target quota: $resources_exceeding_quota"
+    else
+        print_success_item "All resources will fit within target quota"
+    fi
+    
+    # Show top 5 quota consumers in source region
+    if [[ -f "$QUOTA_SUMMARY_FILE" ]]; then
+        echo ""
+        printf "  ${BLUE}Top 5 Quota Consumers in Source Region:${NC}\n"
+        
+        # Extract top 5 by usage percentage using Python for proper CSV parsing
+        python3 << PYTHON_EOF 2>/dev/null
+import csv
+import sys
+
+data = []
+try:
+    with open("$QUOTA_SUMMARY_FILE", 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row['region'] == "$SOURCE_REGION":
+                limit = int(row['limit']) if row['limit'].isdigit() else 0
+                usage = int(row['currentUsage']) if row['currentUsage'].isdigit() else 0
+                if limit > 0:
+                    percent = int((usage / limit) * 100)
+                    data.append({
+                        'metric': row['quotaMetric'],
+                        'usage': usage,
+                        'limit': limit,
+                        'percent': percent
+                    })
+    
+    # Sort by percentage used (descending) and show top 5
+    data.sort(key=lambda x: x['percent'], reverse=True)
+    for item in data[:5]:
+        print(f"    {item['metric']:<45} {item['usage']:>4} / {item['limit']:<4} {item['percent']:>3}% used")
+except Exception as e:
+    pass
+PYTHON_EOF
+    fi
     local quota_metric_count=$(($(wc -l < "$QUOTA_SUMMARY_FILE") - 1))
     if [[ $quota_metric_count -gt 0 ]]; then
         echo ""
-        printf "  ${BLUE}Quota Metrics Available:${NC}\n"
-        print_success_item "$quota_metric_count quota metrics fetched"
-        
-        # Show source region quota summary
-        local source_quota=$(awk -F',' '$1 == "'$SOURCE_REGION'" {print $0}' "$QUOTA_SUMMARY_FILE" | tail -1)
-        if [[ -n "$source_quota" ]]; then
-            echo ""
-            printf "  ${BLUE}Source Region Quota Sample:${NC}\n"
-            echo "$source_quota" | awk -F',' '{printf "    Metric: %s\n    Limit: %s\n    Usage: %s%%\n", $3, $4, $7}' | while read -r line; do
-                printf "    %s\n" "$line"
-            done
-        fi
+        print_success_item "$quota_metric_count quota metrics available"
     else
         echo ""
         print_warning_item "No quota metrics available (quota API may not be enabled)"
     fi
     
-    # Show resources that will need quota in target region
-    local target_quota_resources=$(jq '.data | 
-        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) | 
-        length' "$INVENTORY_FILE" 2>/dev/null || echo "0")
-    
-    if [[ $target_quota_resources -gt 0 ]]; then
+    # Show target region comparison
+    if [[ "$TARGET_REGION" != "$SOURCE_REGION" ]]; then
         echo ""
-        print_kv "Resources Needing Quota (Target)" "$target_quota_resources" "${YELLOW}"
-        print_info_item "These resources will require quota allocation in $TARGET_REGION"
+        printf "  ${BLUE}Target Region Status:${NC}\n"
+        
+        # Compare source vs target quota availability
+        local source_metrics=$(awk -F',' '$1 == "'$SOURCE_REGION'" {count++} END {print count}' "$QUOTA_SUMMARY_FILE" 2>/dev/null || echo "0")
+        local target_metrics=$(awk -F',' '$1 == "'$TARGET_REGION'" {count++} END {print count}' "$QUOTA_SUMMARY_FILE" 2>/dev/null || echo "0")
+        
+        if [[ $target_metrics -gt 0 ]]; then
+            print_success_item "$target_metrics quota metrics available in $TARGET_REGION"
+        else
+            print_info_item "Target region quota data ready for analysis"
+        fi
     fi
     
     print_box_end
@@ -313,7 +343,11 @@ display_quota_summary() {
 display_complete_summary() {
     echo ""
     
-    # Display all summaries
+    # Display execution stats first (most important context)
+    display_execution_stats
+    echo ""
+    
+    # Then display all summaries
     display_inventory_summary
     echo ""
     
@@ -327,9 +361,6 @@ display_complete_summary() {
     echo ""
     
     display_comparative_summary_shell
-    echo ""
-    
-    display_execution_stats
     echo ""
     
     # Display output files
