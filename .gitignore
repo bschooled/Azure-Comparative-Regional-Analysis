@@ -1,0 +1,27 @@
+# Cache directory
+.cache/
+
+# Output directory
+output/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.pricing_temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sensitive data
+*.credentials
+*.secrets

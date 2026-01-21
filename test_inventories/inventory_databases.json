@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "source_region": "westeurope",
+    "generated_at": "2024-01-20",
+    "description": "Database services inventory"
+  },
+  "resources": [
+    {
+      "id": "POSTGRES001",
+      "type": "microsoft.dbforpostgresql/flexibleservers",
+      "sku": "Standard_B1ms"
+    },
+    {
+      "id": "POSTGRES002",
+      "type": "microsoft.dbforpostgresql/flexibleservers",
+      "sku": "Standard_B2s"
+    },
+    {
+      "id": "POSTGRES003",
+      "type": "microsoft.dbforpostgresql/flexibleservers",
+      "sku": "Standard_D4s_v3"
+    },
+    {
+      "id": "MYSQL001",
+      "type": "microsoft.dbformysql/flexibleservers",
+      "sku": "Standard_B1ms"
+    },
+    {
+      "id": "MYSQL002",
+      "type": "microsoft.dbformysql/flexibleservers",
+      "sku": "Standard_D2s_v3"
+    },
+    {
+      "id": "MARIADB001",
+      "type": "microsoft.dbformariadb/servers",
+      "sku": "B_Gen5_1"
+    },
+    {
+      "id": "MARIADB002",
+      "type": "microsoft.dbformariadb/servers",
+      "sku": "GP_Gen5_4"
+    }
+  ]
+}

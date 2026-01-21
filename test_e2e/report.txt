@@ -1,0 +1,23 @@
+End-to-End Test Report
+Generated: 2026-01-21 03:55:51 UTC
+
+Tests Passed: 9
+Tests Failed: 0
+
+Source Inventory: /home/bschooley/Azure-Comparative-Regional-Analysis/test_e2e/test_inventory.json
+Output Directory: /home/bschooley/Azure-Comparative-Regional-Analysis/output
+Logs: /home/bschooley/Azure-Comparative-Regional-Analysis/test_e2e/
+
+Key Outputs:
+  - source_inventory.json: Raw inventory data
+  - source_inventory_summary.csv: Resource counts by type
+  - target_region_availability.json: Regional availability verdicts
+  - unique_tuples.json: Unique resource combinations for pricing
+
+Test Coverage:
+  ✓ Inventory generation with AI/Foundry resources
+  ✓ Ingestion of pre-generated inventory files
+  ✓ Real SKU lookups in target region (swedencentral)
+  ✓ Output file validation
+  ✓ Availability reporting
+  ✓ Cache generation and reuse
