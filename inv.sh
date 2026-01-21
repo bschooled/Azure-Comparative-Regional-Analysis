@@ -105,6 +105,7 @@ main() {
     fetch_source_region_quotas
     fetch_target_region_quotas
     generate_quota_summary
+    enrich_tuples_with_quota
     
     end_time=$(date +%s)
     log_info "Phase 5 completed in $((end_time - start_time)) seconds"

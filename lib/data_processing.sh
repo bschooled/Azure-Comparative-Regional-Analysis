@@ -62,7 +62,9 @@ derive_unique_tuples() {
             tier: .tier,
             capacity: .capacity,
             storageAccountKind: .storageAccountKind,
-            region: .location
+            region: .location,
+            quota: null,
+            quotaUsage: null
         }) |
         unique_by(.type, .sku, .vmSize, .diskSku, .diskSizeGB, .tier, .capacity, .storageAccountKind)
     ' "$INVENTORY_FILE" > "$TUPLES_FILE"
@@ -142,3 +144,93 @@ has_direct_meter() {
             ;;
     esac
 }
+
+# ==============================================================================
+# Enrich tuples with quota data
+# ==============================================================================
+enrich_tuples_with_quota() {
+    log_info "Enriching tuples with quota information..."
+    
+    if [[ ! -f "$TUPLES_FILE" ]]; then
+        log_error "Tuples file not found: $TUPLES_FILE"
+        return 1
+    fi
+    
+    if [[ ! -f "$QUOTA_SOURCE_FILE" ]]; then
+        log_debug "Quota source file not found; skipping quota enrichment" >&2
+        return 0
+    fi
+    
+    # Create a temporary lookup file from quota data indexed by resource type
+    local quota_lookup=$(jq -c 'reduce .[] as $item ({}; 
+        .[$item.resourceType | ascii_downcase] = $item.quotas[0])' "$QUOTA_SOURCE_FILE")
+    
+    # Enrich tuples with quota data
+    local enriched=$(jq -c \
+        --argjson quotas "$quota_lookup" \
+        '.[] | 
+        .quota = $quotas[.type | ascii_downcase] // null |
+        .quotaUsage = if .quota != null then .quota.currentValue else null end' \
+        "$TUPLES_FILE")
+    
+    # Convert back to array format and write
+    echo "[$(echo "$enriched" | paste -sd, -)]" | jq '.' > "$TUPLES_FILE" 2>/dev/null || {
+        log_warning "Could not enrich tuples with quota data; keeping original format"
+        return 1
+    }
+    
+    log_success "Tuples enriched with quota data"
+    return 0
+}
+
+# ==============================================================================
+# Extract Top 5 resources needing quota by count
+# ==============================================================================
+get_top_quota_resources() {
+    log_info "Getting top 5 resources requiring quota in source region..."
+    
+    if [[ ! -f "$INVENTORY_FILE" ]]; then
+        return 1
+    fi
+    
+    # Get top 5 resource types by count, filter to those that need quota
+    jq -r '.data |
+        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) |
+        group_by(.type) |
+        map({
+            type: .[0].type,
+            count: length,
+            region: .[0].location
+        }) |
+        sort_by(-.count) |
+        .[:5]' "$INVENTORY_FILE"
+}
+
+# ==============================================================================
+# Get summary of resources needing quota in target region
+# ==============================================================================
+get_quota_summary_for_target() {
+    log_info "Getting quota summary for target region resources..."
+    
+    if [[ ! -f "$INVENTORY_FILE" ]]; then
+        return 1
+    fi
+    
+    # Count resources by type that may need quota in target
+    jq '.data |
+        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) |
+        group_by(.type) |
+        map({
+            type: .[0].type,
+            count: length
+        }) |
+        sort_by(-.count)' "$INVENTORY_FILE"
+}
+
+export -f summarize_inventory
+export -f derive_unique_tuples
+export -f classify_resource_type
+export -f has_direct_meter
+export -f enrich_tuples_with_quota
+export -f get_top_quota_resources
+export -f get_quota_summary_for_target

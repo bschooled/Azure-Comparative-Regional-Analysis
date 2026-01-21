@@ -237,6 +237,77 @@ display_execution_stats() {
 }
 
 # ==============================================================================
+# Display quota summary to shell
+# ==============================================================================
+display_quota_summary() {
+    if [[ ! -f "$QUOTA_SUMMARY_FILE" ]]; then
+        return 1
+    fi
+    
+    print_box "SERVICE QUOTA ANALYSIS"
+    
+    # Count total resources needing quota in source region
+    local resources_needing_quota=$(jq '.data | 
+        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) | 
+        length' "$INVENTORY_FILE" 2>/dev/null || echo "0")
+    
+    print_kv "Resources Needing Quota (Source)" "$resources_needing_quota" "${BLUE}"
+    
+    # Show top 5 resources by count
+    if [[ $resources_needing_quota -gt 0 ]]; then
+        echo ""
+        printf "  ${BLUE}Top 5 Resources in Source Region:${NC}\n"
+        
+        jq '.data |
+            map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) |
+            group_by(.type) |
+            map({
+                type: (.[0].type | split("/")[1] // .[0].type),
+                count: length
+            }) |
+            sort_by(-.count) |
+            .[:5]' "$INVENTORY_FILE" 2>/dev/null | \
+        jq -r '.[] | "    \(.type): \(.count) resource(s)"' | while read -r line; do
+            printf "    %s\n" "$line"
+        done
+    fi
+    
+    # Show quota metrics if available
+    local quota_metric_count=$(($(wc -l < "$QUOTA_SUMMARY_FILE") - 1))
+    if [[ $quota_metric_count -gt 0 ]]; then
+        echo ""
+        printf "  ${BLUE}Quota Metrics Available:${NC}\n"
+        print_success_item "$quota_metric_count quota metrics fetched"
+        
+        # Show source region quota summary
+        local source_quota=$(awk -F',' '$1 == "'$SOURCE_REGION'" {print $0}' "$QUOTA_SUMMARY_FILE" | tail -1)
+        if [[ -n "$source_quota" ]]; then
+            echo ""
+            printf "  ${BLUE}Source Region Quota Sample:${NC}\n"
+            echo "$source_quota" | awk -F',' '{printf "    Metric: %s\n    Limit: %s\n    Usage: %s%%\n", $3, $4, $7}' | while read -r line; do
+                printf "    %s\n" "$line"
+            done
+        fi
+    else
+        echo ""
+        print_warning_item "No quota metrics available (quota API may not be enabled)"
+    fi
+    
+    # Show resources that will need quota in target region
+    local target_quota_resources=$(jq '.data | 
+        map(select(.type | startswith("microsoft.compute") or startswith("microsoft.network") or startswith("microsoft.storage"))) | 
+        length' "$INVENTORY_FILE" 2>/dev/null || echo "0")
+    
+    if [[ $target_quota_resources -gt 0 ]]; then
+        echo ""
+        print_kv "Resources Needing Quota (Target)" "$target_quota_resources" "${YELLOW}"
+        print_info_item "These resources will require quota allocation in $TARGET_REGION"
+    fi
+    
+    print_box_end
+}
+
+# ==============================================================================
 # Display complete execution summary
 # ==============================================================================
 display_complete_summary() {
@@ -247,6 +318,9 @@ display_complete_summary() {
     echo ""
     
     display_pricing_summary
+    echo ""
+    
+    display_quota_summary
     echo ""
     
     display_availability_summary
@@ -264,10 +338,14 @@ display_complete_summary() {
     printf "  ${GREEN}✓${NC} output/source_inventory.json\n"
     printf "  ${GREEN}✓${NC} output/source_inventory_summary.csv\n"
     printf "  ${GREEN}✓${NC} output/price_lookup.csv\n"
+    printf "  ${GREEN}✓${NC} output/quota_source_region.json\n"
+    printf "  ${GREEN}✓${NC} output/quota_target_region.json\n"
+    printf "  ${GREEN}✓${NC} output/quota_summary.csv\n"
     printf "  ${GREEN}✓${NC} output/target_region_availability.json\n"
     printf "  ${GREEN}✓${NC} output/service_availability_comparison.csv\n"
     printf "  ${GREEN}✓${NC} output/service_availability_comparison.json\n"
     printf "  ${GREEN}✓${NC} output/availability_summary.txt\n"
+    printf "  ${GREEN}✓${NC} output/unique_tuples.json\n"
     printf "  ${GREEN}✓${NC} output/run.log\n"
     
     print_box_end
@@ -291,3 +369,22 @@ display_complete_summary() {
         printf "%s\n" "${NC}"
     fi
 }
+
+# ==============================================================================
+# Export functions for use in subshells
+# ==============================================================================
+export -f print_box
+export -f print_box_end
+export -f print_divider
+export -f print_kv
+export -f print_warning_item
+export -f print_success_item
+export -f print_error_item
+export -f print_info_item
+export -f display_inventory_summary
+export -f display_pricing_summary
+export -f display_quota_summary
+export -f display_availability_summary
+export -f display_comparative_summary_shell
+export -f display_execution_stats
+export -f display_complete_summary

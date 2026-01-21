@@ -210,24 +210,47 @@ fetch_service_quota() {
     
     log_debug "Fetching quota for $resource_type in $region" >&2
     
-    # Try Compute provider first (covers most services)
-    local endpoint="https://management.azure.com/subscriptions/${subscription_id}/providers/Microsoft.Compute/locations/${region}/usages"
-    local api_version="2021-07-01"
+    local response=""
     
-    local response
-    if response=$(az rest --method get \
-        --url "${endpoint}?api-version=${api_version}" \
-        --output json 2>/dev/null); then
+    # Try Compute provider (covers VMs and Disks)
+    if [[ "$resource_type" == "microsoft.compute"* ]]; then
+        local endpoint="https://management.azure.com/subscriptions/${subscription_id}/providers/Microsoft.Compute/locations/${region}/usages"
+        local api_version="2021-07-01"
         
-        # Filter to relevant quota for this resource type and return as array
-        local filtered
-        filtered=$(echo "$response" | jq -c \
-            --arg type "$resource_type" \
-            '[.value[]? | select(.name.localizedValue | contains($type) or .name.value | contains($type))]')
+        response=$(az rest --method get \
+            --url "${endpoint}?api-version=${api_version}" \
+            --output json 2>/dev/null)
         
-        # Return array (even if empty)
-        echo "$filtered"
-        return 0
+        if [[ -n "$response" ]]; then
+            # Filter and transform response
+            echo "$response" | jq -c '[.value[]? | {
+                name: .name,
+                limit: .limit,
+                currentValue: .currentValue,
+                unit: .unit
+            }]'
+            return 0
+        fi
+    fi
+    
+    # Try Network provider (load balancers, public IPs, etc.)
+    if [[ "$resource_type" == "microsoft.network"* ]]; then
+        local endpoint="https://management.azure.com/subscriptions/${subscription_id}/providers/Microsoft.Network/locations/${region}/quotas"
+        local api_version="2020-05-01"
+        
+        response=$(az rest --method get \
+            --url "${endpoint}?api-version=${api_version}" \
+            --output json 2>/dev/null)
+        
+        if [[ -n "$response" ]]; then
+            echo "$response" | jq -c '[.value[]? | {
+                name: .name,
+                limit: .limit,
+                currentValue: .currentValue,
+                unit: .unit
+            }]'
+            return 0
+        fi
     fi
     
     # Return empty array on failure
