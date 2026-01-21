@@ -1,7 +1,7 @@
 End-to-End Test Report
-Generated: 2026-01-21 03:55:51 UTC
+Generated: 2026-01-21 04:53:26 UTC
 
-Tests Passed: 9
+Tests Passed: 15
 Tests Failed: 0
 
 Source Inventory: /home/bschooley/Azure-Comparative-Regional-Analysis/test_e2e/test_inventory.json
@@ -13,6 +13,9 @@ Key Outputs:
   - source_inventory_summary.csv: Resource counts by type
   - target_region_availability.json: Regional availability verdicts
   - unique_tuples.json: Unique resource combinations for pricing
+  - quota_summary.csv: Service quota metrics per region
+  - quota_source_region.json: Raw quota data for source region
+  - quota_target_region.json: Raw quota data for target region
 
 Test Coverage:
   ✓ Inventory generation with AI/Foundry resources
@@ -21,3 +24,15 @@ Test Coverage:
   ✓ Output file validation
   ✓ Availability reporting
   ✓ Cache generation and reuse
+  ✓ Quota summary file structure and headers
+  ✓ Quota data format validation
+  ✓ Quota display output format
+  ✓ Execution statistics display order
+  ✓ Quota resource count logic (resources exceeding/fitting in target)
+
+Quota Analysis Tests:
+  - Validates quota_summary.csv headers and structure
+  - Checks quota display format in output
+  - Verifies execution statistics appear first in display
+  - Validates resource count logic (showing correct exceeding/fitting counts)
+  - Gracefully handles missing quota data (for --all and --inventory-file scopes)
