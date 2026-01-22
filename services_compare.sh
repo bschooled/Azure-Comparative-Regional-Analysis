@@ -128,6 +128,10 @@ parse_args() {
 
 # Validate inputs
 validate_inputs() {
+    # Fail early with actionable messages if dependencies are missing.
+    verify_prerequisites
+    verify_azure_login
+
     if [[ -z "$SOURCE_REGION" ]]; then
         log_error "Missing required argument: --source-region"
         usage 1

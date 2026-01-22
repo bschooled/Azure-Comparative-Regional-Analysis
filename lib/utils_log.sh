@@ -80,7 +80,7 @@ increment_cache_hit() {
 # ==============================================================================
 # Display execution summary
 # ==============================================================================
-display_summary() {
+utils_log_display_summary() {
     log_info "=== Execution Summary ==="
     log_info "Total Errors: $ERROR_COUNT"
     log_info "Total Warnings: $WARNING_COUNT"
@@ -96,10 +96,15 @@ display_summary() {
     log_info "Log file: ${LOG_FILE}"
 }
 
-# Some scripts define their own display_summary(); this helper avoids name
-# collisions while still exposing the global execution summary.
+# Backward-compatible name used by inv.sh and others. Scripts may override this
+# with their own UI summary; for the logging summary, call display_execution_summary.
+display_summary() {
+    utils_log_display_summary
+}
+
+# Stable name that won't collide with per-script display_summary() functions.
 display_execution_summary() {
-    display_summary
+    utils_log_display_summary
 }
 
 # ==============================================================================
@@ -120,30 +125,45 @@ determine_exit_code() {
 # ==============================================================================
 verify_prerequisites() {
     log_info "Verifying prerequisites..."
+
+    # Helper to fail with actionable install guidance.
+    require_cmd() {
+        local cmd="$1"
+        local install_hint="$2"
+
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            log_error "Missing dependency: '$cmd'"
+            if [[ -n "$install_hint" ]]; then
+                log_info "Install hint: $install_hint"
+            fi
+            exit 1
+        fi
+    }
     
     # Check Azure CLI
-    if ! command -v az &> /dev/null; then
-        log_error "Azure CLI not found. Please install Azure CLI v2.50 or higher"
-        exit 1
-    fi
+    require_cmd "az" "Azure CLI required. See: https://learn.microsoft.com/cli/azure/install-azure-cli-linux (Debian/Ubuntu quick install: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash)"
     
     local az_version=$(az version --output json 2>/dev/null | jq -r '."azure-cli"' || echo "unknown")
     log_info "Azure CLI version: $az_version"
     
     # Check jq
-    if ! command -v jq &> /dev/null; then
-        log_error "jq not found. Please install jq for JSON processing"
-        exit 1
-    fi
+    require_cmd "jq" "Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y jq (RHEL/CentOS/Fedora: sudo dnf install -y jq)"
     
     local jq_version=$(jq --version 2>/dev/null || echo "unknown")
     log_info "jq version: $jq_version"
     
     # Check curl
-    if ! command -v curl &> /dev/null; then
-        log_error "curl not found. Please install curl"
-        exit 1
-    fi
+    require_cmd "curl" "Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y curl (RHEL/CentOS/Fedora: sudo dnf install -y curl)"
+
+    # Common Unix tools used across scripts/libs
+    require_cmd "awk" "Debian/Ubuntu: sudo apt-get install -y gawk (or mawk)"
+    require_cmd "sort" "Provided by coreutils (Debian/Ubuntu: sudo apt-get install -y coreutils)"
+    require_cmd "sed" "Provided by sed (Debian/Ubuntu: sudo apt-get install -y sed)"
+    require_cmd "du" "Provided by coreutils (Debian/Ubuntu: sudo apt-get install -y coreutils)"
+    require_cmd "mktemp" "Provided by coreutils (Debian/Ubuntu: sudo apt-get install -y coreutils)"
+    require_cmd "sha256sum" "Provided by coreutils (Debian/Ubuntu: sudo apt-get install -y coreutils)"
+    require_cmd "stat" "Provided by coreutils (Debian/Ubuntu: sudo apt-get install -y coreutils)"
+    require_cmd "column" "Provided by util-linux (Debian/Ubuntu: sudo apt-get install -y util-linux)"
     
     log_success "All prerequisites verified"
 }
