@@ -86,21 +86,27 @@ set_cache() {
 check_cache() {
     local cache_key="$1"
     local ttl="${2:-$CACHE_TTL}"
-    local cache_file="${CACHE_DIR}/${cache_key}.json"
+    local cache_dir="${CACHE_DIR:-.cache}"
+    local cache_file="${cache_dir}/${cache_key}.json"
     is_cache_valid "$cache_file" "$ttl"
 }
 
 read_cache() {
     local cache_key="$1"
-    local cache_file="${CACHE_DIR}/${cache_key}.json"
+    local cache_dir="${CACHE_DIR:-.cache}"
+    local cache_file="${cache_dir}/${cache_key}.json"
+    if declare -F increment_cache_hit >/dev/null 2>&1; then
+        increment_cache_hit
+    fi
     cat "$cache_file"
 }
 
 write_cache() {
     local cache_key="$1"
     local data="$2"
-    local cache_file="${CACHE_DIR}/${cache_key}.json"
-    mkdir -p "${CACHE_DIR}"
+    local cache_dir="${CACHE_DIR:-.cache}"
+    local cache_file="${cache_dir}/${cache_key}.json"
+    mkdir -p "${cache_dir}"
     echo "$data" > "$cache_file"
 }
 

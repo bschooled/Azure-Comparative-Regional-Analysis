@@ -289,12 +289,23 @@ get_fabric_skus() {
 # Returns: JSON array of SKU-like objects: {name, resourceType}
 get_mysql_flexible_server_skus() {
     local region="$1"
-    local subscription_id
-    subscription_id=$(get_current_subscription_id)
-    local cache_key="mysql_flexible_skus_${region}_${subscription_id}"
-    local meta_key="mysql_flexible_skus_meta_${region}_${subscription_id}"
+    local cache_key="mysql_flexible_skus_${region}"
+    local meta_key="mysql_flexible_skus_meta_${region}"
 
+    # Cache-first without requiring Azure CLI login
     if check_cache "$cache_key" "$SC_CACHE_TTL_SKUS"; then
+        read_cache "$cache_key"
+        return 0
+    fi
+
+    # Back-compat / migration: if a subscription-scoped cache exists, use it
+    # and also write it into the universal cache key.
+    local subscription_id
+    subscription_id=$(get_current_subscription_id) || true
+    if [[ -n "$subscription_id" ]] && check_cache "mysql_flexible_skus_${region}_${subscription_id}" "$SC_CACHE_TTL_SKUS"; then
+        local tmp
+        tmp=$(read_cache "mysql_flexible_skus_${region}_${subscription_id}")
+        write_cache "$cache_key" "$tmp" "$SC_CACHE_TTL_SKUS"
         read_cache "$cache_key"
         return 0
     fi
@@ -338,12 +349,23 @@ get_mysql_flexible_server_skus() {
 # Returns: JSON array of SKU-like objects: {name, resourceType}
 get_postgres_flexible_server_skus() {
     local region="$1"
-    local subscription_id
-    subscription_id=$(get_current_subscription_id)
-    local cache_key="postgres_flexible_skus_${region}_${subscription_id}"
-    local meta_key="postgres_flexible_skus_meta_${region}_${subscription_id}"
+    local cache_key="postgres_flexible_skus_${region}"
+    local meta_key="postgres_flexible_skus_meta_${region}"
 
+    # Cache-first without requiring Azure CLI login
     if check_cache "$cache_key" "$SC_CACHE_TTL_SKUS"; then
+        read_cache "$cache_key"
+        return 0
+    fi
+
+    # Back-compat / migration: if a subscription-scoped cache exists, use it
+    # and also write it into the universal cache key.
+    local subscription_id
+    subscription_id=$(get_current_subscription_id) || true
+    if [[ -n "$subscription_id" ]] && check_cache "postgres_flexible_skus_${region}_${subscription_id}" "$SC_CACHE_TTL_SKUS"; then
+        local tmp
+        tmp=$(read_cache "postgres_flexible_skus_${region}_${subscription_id}")
+        write_cache "$cache_key" "$tmp" "$SC_CACHE_TTL_SKUS"
         read_cache "$cache_key"
         return 0
     fi
@@ -576,20 +598,41 @@ compare_skus() {
 query_provider_skus() {
     local region="$1"
     local provider="$2"
-    local subscription_id
-    subscription_id=$(get_current_subscription_id) || true
-    if [[ -z "$subscription_id" ]]; then
-        log_error "Failed to get current subscription"
-        return 1
-    fi
+    # Universal cache keys (no subscription suffix). Also sanitize provider
+    # names so synthetic entries like "Microsoft.Compute/disks" don't create
+    # nested paths under CACHE_DIR.
+    local provider_key="${provider//\//__}"
+    local cache_key="provider_skus_${provider_key}_${region}"
 
-    # Subscription-aware cache key to avoid cross-subscription contamination.
-    local cache_key="provider_skus_${provider}_${region}_${subscription_id}"
-    
-    # Check cache first
+    # Cache-first must work even when offline/not logged into Azure.
     if check_cache "$cache_key" "$SC_CACHE_TTL_SKUS"; then
+        if [[ "${CACHE_TRACE:-0}" == "1" ]]; then
+            log_info "[CACHE HIT] SKUs for $provider in $region"
+        fi
         read_cache "$cache_key"
         return 0
+    fi
+
+    # Back-compat / migration: if a subscription-scoped cache exists, use the
+    # newest one and write it into the universal cache key.
+    local subscription_id
+    subscription_id=$(get_current_subscription_id) || true
+    local pattern="${CACHE_DIR}/provider_skus_${provider}_${region}_*.json"
+    local newest
+    newest=$(ls -t $pattern 2>/dev/null | head -n 1 || true)
+    if [[ -n "$newest" ]] && is_cache_valid "$newest" "$SC_CACHE_TTL_SKUS"; then
+        if [[ "${CACHE_TRACE:-0}" == "1" ]]; then
+            log_info "[CACHE HIT] SKUs for $provider in $region (migrated from ${newest##*/})"
+        fi
+        local tmp
+        tmp=$(cat "$newest")
+        write_cache "$cache_key" "$tmp" "$SC_CACHE_TTL_SKUS"
+        read_cache "$cache_key"
+        return 0
+    fi
+
+    if [[ "${CACHE_TRACE:-0}" == "1" ]]; then
+        log_info "[CACHE MISS] SKUs for $provider in $region"
     fi
     
     # Provider-specific SKU backends (preferred when /skus is missing/empty)
@@ -619,6 +662,12 @@ query_provider_skus() {
     if [[ -n "$filtered_skus" ]] && echo "$filtered_skus" | jq -e 'type=="array" and length > 0' >/dev/null 2>&1; then
         write_cache "$cache_key" "$filtered_skus" "$SC_CACHE_TTL_SKUS"
         echo "$filtered_skus"
+        return 0
+    fi
+
+    if [[ -z "$subscription_id" ]]; then
+        log_warn "No Azure subscription context available; returning empty SKUs for $provider in $region (cache miss)"
+        echo "[]"
         return 0
     fi
 
@@ -753,10 +802,18 @@ generate_comparison_outputs() {
             # Query SKUs for this provider in both regions
             log_info "[SKU QUERY] Querying $provider in both regions"
             local src_skus tgt_skus src_count tgt_count
-            src_skus=$(query_provider_skus "$source_region" "$provider" 2>/dev/null || echo "[]")
+            if [[ "${CACHE_TRACE:-0}" == "1" ]]; then
+                src_skus=$(query_provider_skus "$source_region" "$provider" || echo "[]")
+            else
+                src_skus=$(query_provider_skus "$source_region" "$provider" 2>/dev/null || echo "[]")
+            fi
             src_count=$(echo "$src_skus" | jq '. | length' 2>/dev/null || echo "0")
             
-            tgt_skus=$(query_provider_skus "$target_region" "$provider" 2>/dev/null || echo "[]")
+            if [[ "${CACHE_TRACE:-0}" == "1" ]]; then
+                tgt_skus=$(query_provider_skus "$target_region" "$provider" || echo "[]")
+            else
+                tgt_skus=$(query_provider_skus "$target_region" "$provider" 2>/dev/null || echo "[]")
+            fi
             tgt_count=$(echo "$tgt_skus" | jq '. | length' 2>/dev/null || echo "0")
             
             log_info "[SKU RESULT] $provider: $src_count in $source_region, $tgt_count in $target_region"
@@ -764,30 +821,45 @@ generate_comparison_outputs() {
             # Some providers return an empty SKU list due to subscription restrictions.
             # Surface those as explicit status/notes rather than silently reporting "0 SKUs".
             local subscription_id src_note tgt_note src_restricted tgt_restricted
-            subscription_id=$(get_current_subscription_id)
+            subscription_id=$(get_current_subscription_id) || true
             src_note=""
             tgt_note=""
             src_restricted=false
             tgt_restricted=false
+            # Universal meta cache files (preferred)
+            case "$provider" in
+                Microsoft.DBforPostgreSQL)
+                    if [[ -f "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}.json" ]]; then
+                        src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}.json" 2>/dev/null || echo "")
+                    fi
+                    if [[ -f "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}.json" ]]; then
+                        tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}.json" 2>/dev/null || echo "")
+                    fi
+                    ;;
+                Microsoft.DBforMySQL)
+                    if [[ -f "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}.json" ]]; then
+                        src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}.json" 2>/dev/null || echo "")
+                    fi
+                    if [[ -f "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}.json" ]]; then
+                        tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}.json" 2>/dev/null || echo "")
+                    fi
+                    ;;
+            esac
+
+            # Back-compat: if notes are missing and old subscription-suffixed meta exists, use it.
             if [[ -n "$subscription_id" ]]; then
-                case "$provider" in
-                    Microsoft.DBforPostgreSQL)
-                        if [[ -f "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}_${subscription_id}.json" ]]; then
-                            src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}_${subscription_id}.json" 2>/dev/null || echo "")
-                        fi
-                        if [[ -f "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}_${subscription_id}.json" ]]; then
-                            tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}_${subscription_id}.json" 2>/dev/null || echo "")
-                        fi
-                        ;;
-                    Microsoft.DBforMySQL)
-                        if [[ -f "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}_${subscription_id}.json" ]]; then
-                            src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}_${subscription_id}.json" 2>/dev/null || echo "")
-                        fi
-                        if [[ -f "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}_${subscription_id}.json" ]]; then
-                            tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}_${subscription_id}.json" 2>/dev/null || echo "")
-                        fi
-                        ;;
-                esac
+                if [[ -z "$src_note" && "$provider" == "Microsoft.DBforPostgreSQL" && -f "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}_${subscription_id}.json" ]]; then
+                    src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${source_region}_${subscription_id}.json" 2>/dev/null || echo "")
+                fi
+                if [[ -z "$tgt_note" && "$provider" == "Microsoft.DBforPostgreSQL" && -f "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}_${subscription_id}.json" ]]; then
+                    tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/postgres_flexible_skus_meta_${target_region}_${subscription_id}.json" 2>/dev/null || echo "")
+                fi
+                if [[ -z "$src_note" && "$provider" == "Microsoft.DBforMySQL" && -f "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}_${subscription_id}.json" ]]; then
+                    src_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${source_region}_${subscription_id}.json" 2>/dev/null || echo "")
+                fi
+                if [[ -z "$tgt_note" && "$provider" == "Microsoft.DBforMySQL" && -f "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}_${subscription_id}.json" ]]; then
+                    tgt_note=$(jq -r '.reason // empty' "${CACHE_DIR}/mysql_flexible_skus_meta_${target_region}_${subscription_id}.json" 2>/dev/null || echo "")
+                fi
             fi
 
             if [[ "$src_exists" == "true" && "$src_count" -eq 0 && -n "$src_note" ]]; then

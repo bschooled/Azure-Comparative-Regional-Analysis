@@ -96,6 +96,12 @@ display_summary() {
     log_info "Log file: ${LOG_FILE}"
 }
 
+# Some scripts define their own display_summary(); this helper avoids name
+# collisions while still exposing the global execution summary.
+display_execution_summary() {
+    display_summary
+}
+
 # ==============================================================================
 # Determine exit code based on execution status
 # ==============================================================================

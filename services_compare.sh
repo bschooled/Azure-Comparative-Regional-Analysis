@@ -60,8 +60,13 @@ Optional Arguments:
   --output-dir <path>         Output directory (default: current directory)
   --output-formats <csv,json> Output formats: csv, json, display (default: all)
   --cache-dir <path>          Cache directory for API responses (default: .cache)
-  --verbose                   Enable verbose logging
+    --verbose                   Enable verbose logging and cache trace lines
   --help                       Display this help message
+
+Environment Variables:
+    CACHE_DIR                   Cache directory (same as --cache-dir)
+    CACHE_TRACE=1               Print per-provider SKU cache hit/miss lines
+    DEBUG=1                     Enable debug logging (written to services_compare.log)
 
 Examples:
   # Basic comparison
@@ -72,6 +77,9 @@ Examples:
 
   # JSON output only
   ./services_compare.sh --source-region eastus --target-region westeurope --output-formats json
+
+    # Show cache usage (SKU cache hit/miss lines)
+    ./services_compare.sh --source-region eastus --target-region westeurope --verbose
 
 EOF
     exit "${1:-0}"
@@ -103,6 +111,8 @@ parse_args() {
                 ;;
             --verbose)
                 VERBOSE=true
+                export DEBUG=1
+                export CACHE_TRACE=1
                 shift
                 ;;
             --help)
@@ -268,5 +278,8 @@ validate_inputs || exit 1
 
 # Execute main logic
 main || exit 1
+
+# Always show cache usage so it's obvious whether cache is working.
+display_execution_summary
 
 log_info "Service comparison completed successfully"
