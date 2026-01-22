@@ -22,6 +22,10 @@ WARNING_COUNT=0
 API_CALL_COUNT=0
 CACHE_HIT_COUNT=0
 
+# If callers run with `set -u`, ensure LOG_FILE always has a safe default.
+# Scripts can still override LOG_FILE before calling init_logging.
+LOG_FILE="${LOG_FILE:-/dev/null}"
+
 # ==============================================================================
 # Initialize logging
 # ==============================================================================
@@ -35,24 +39,24 @@ init_logging() {
 # ==============================================================================
 log_info() {
     local msg="$1"
-    echo -e "${BLUE}[INFO]${NC} $msg" | tee -a "${LOG_FILE}"
+    echo -e "${BLUE}[INFO]${NC} $msg" | tee -a "${LOG_FILE}" >&2
 }
 
 log_success() {
     local msg="$1"
-    echo -e "${GREEN}[SUCCESS]${NC} $msg" | tee -a "${LOG_FILE}"
+    echo -e "${GREEN}[SUCCESS]${NC} $msg" | tee -a "${LOG_FILE}" >&2
 }
 
 log_warning() {
     local msg="$1"
     ((WARNING_COUNT++))
-    echo -e "${YELLOW}[WARNING]${NC} $msg" | tee -a "${LOG_FILE}"
+    echo -e "${YELLOW}[WARNING]${NC} $msg" | tee -a "${LOG_FILE}" >&2
 }
 
 log_error() {
     local msg="$1"
     ((ERROR_COUNT++))
-    echo -e "${RED}[ERROR]${NC} $msg" | tee -a "${LOG_FILE}"
+    echo -e "${RED}[ERROR]${NC} $msg" | tee -a "${LOG_FILE}" >&2
 }
 
 log_debug() {

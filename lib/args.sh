@@ -68,6 +68,8 @@ parse_arguments() {
                 exit 0
                 ;;
             *)
+                echo "ERROR: Unknown option: $1" >&2
+                echo "" >&2
                 log_error "Unknown option: $1"
                 show_help
                 exit 1

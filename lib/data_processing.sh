@@ -3,6 +3,9 @@
 # Data Processing - Summarization and Tuple Extraction
 # ==============================================================================
 
+# Default output directory for generated artifacts
+OUTPUT_DIR="${OUTPUT_DIR:-.}"
+
 # Output files
 SUMMARY_FILE="${OUTPUT_DIR}/source_inventory_summary.csv"
 TUPLES_FILE="${OUTPUT_DIR}/unique_tuples.json"

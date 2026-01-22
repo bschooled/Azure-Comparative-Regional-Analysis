@@ -24,6 +24,7 @@ source "${LIB_DIR}/utils_log.sh"
 source "${LIB_DIR}/utils_cache.sh"
 source "${LIB_DIR}/utils_http.sh"
 source "${LIB_DIR}/region_mapping.sh"
+source "${LIB_DIR}/service_comparison.sh"  # Shared caching and SKU query functions
 source "${LIB_DIR}/sku_provider.sh"
 source "${LIB_DIR}/args.sh"
 source "${LIB_DIR}/inventory.sh"
@@ -32,6 +33,7 @@ source "${LIB_DIR}/availability.sh"
 source "${LIB_DIR}/quota.sh"
 source "${LIB_DIR}/data_processing.sh"
 source "${LIB_DIR}/comparative_analysis.sh"
+source "${LIB_DIR}/inventory_comparison.sh"  # Inventory-specific comparison output
 source "${LIB_DIR}/display.sh"
 
 # ==============================================================================
@@ -119,6 +121,18 @@ main() {
     
     end_time=$(date +%s)
     log_info "Phase 6 completed in $((end_time - start_time)) seconds"
+    
+    # ---- Phase 7: Generate Standard Comparison Outputs ----
+    log_info "=== Phase 7: Generate Standard Comparison Outputs ==="
+    start_time=$(date +%s)
+    
+    local json_file="${OUTPUT_DIR}/inventory_${SOURCE_REGION}_vs_${TARGET_REGION}_providers.json"
+    local csv_file="${OUTPUT_DIR}/inventory_${SOURCE_REGION}_vs_${TARGET_REGION}_providers.csv"
+    
+    generate_inventory_comparison_outputs "$SOURCE_REGION" "$TARGET_REGION" "$csv_file" "$json_file"
+    
+    end_time=$(date +%s)
+    log_info "Phase 7 completed in $((end_time - start_time)) seconds"
     
     # ---- Summary and Exit ----
     log_info "=== Execution Complete ==="

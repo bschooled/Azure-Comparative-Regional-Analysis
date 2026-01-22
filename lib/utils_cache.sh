@@ -6,6 +6,12 @@
 # Cache TTL in seconds (default: 24 hours)
 CACHE_TTL=${CACHE_TTL:-86400}
 
+# Initialize cache directory
+init_cache() {
+    CACHE_DIR="${1:-${CACHE_DIR:-.cache}}"
+    mkdir -p "${CACHE_DIR}"
+}
+
 # ==============================================================================
 # Generate cache key from content
 # ==============================================================================
@@ -26,6 +32,7 @@ cache_key() {
 # ==============================================================================
 is_cache_valid() {
     local cache_file="${1:-}"
+    local ttl="${2:-$CACHE_TTL}"
     
     if [[ -z "$cache_file" ]] || [[ ! -f "$cache_file" ]]; then
         return 1
@@ -35,8 +42,8 @@ is_cache_valid() {
     local file_time=$(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null)
     local age=$((current_time - file_time))
     
-    if [[ $age -gt $CACHE_TTL ]]; then
-        log_debug "Cache expired: $cache_file (age: ${age}s, TTL: ${CACHE_TTL}s)"
+    if [[ $age -gt $ttl ]]; then
+        log_debug "Cache expired: $cache_file (age: ${age}s, TTL: ${ttl}s)"
         return 1
     fi
     
@@ -48,9 +55,10 @@ is_cache_valid() {
 # ==============================================================================
 get_cache() {
     local cache_key="$1"
+    local ttl="${2:-$CACHE_TTL}"
     local cache_file="${CACHE_DIR}/${cache_key}.json"
     
-    if is_cache_valid "$cache_file"; then
+    if is_cache_valid "$cache_file" "$ttl"; then
         log_debug "Cache hit: $cache_key"
         increment_cache_hit
         cat "$cache_file"
@@ -72,6 +80,28 @@ set_cache() {
     mkdir -p "${CACHE_DIR}"
     echo "$data" > "$cache_file"
     log_debug "Cached data: $cache_key"
+}
+
+# Backwards-compatible helpers used by service_comparison.sh
+check_cache() {
+    local cache_key="$1"
+    local ttl="${2:-$CACHE_TTL}"
+    local cache_file="${CACHE_DIR}/${cache_key}.json"
+    is_cache_valid "$cache_file" "$ttl"
+}
+
+read_cache() {
+    local cache_key="$1"
+    local cache_file="${CACHE_DIR}/${cache_key}.json"
+    cat "$cache_file"
+}
+
+write_cache() {
+    local cache_key="$1"
+    local data="$2"
+    local cache_file="${CACHE_DIR}/${cache_key}.json"
+    mkdir -p "${CACHE_DIR}"
+    echo "$data" > "$cache_file"
 }
 
 # ==============================================================================

@@ -6,6 +6,7 @@ This directory contains comprehensive documentation organized by category. For q
 
 - **[README_USAGE.md](Usage/README_USAGE.md)** - Complete user guide with all command options and examples
 - **[QUICKSTART.md](Usage/QUICKSTART.md)** - Quick start guide with common scenarios and setup steps
+- **[SERVICES_COMPARE.md](Usage/SERVICES_COMPARE.md)** - Region-only provider/SKU comparison (`services_compare.sh`)
 
 ## ✨ Features
 
@@ -19,7 +20,7 @@ This directory contains comprehensive documentation organized by category. For q
 
 - **[IMPLEMENTATION_CHECKLIST.md](Implementation/IMPLEMENTATION_CHECKLIST.md)** - Development task tracking
 - **[IMPLEMENTATION_SUMMARY.md](Implementation/IMPLEMENTATION_SUMMARY.md)** - Implementation summary and details
-- **[Spec.md](Spec.md)** - Original requirements specification
+- **[Spec.md](Implementation/Spec.md)** - Original requirements specification
 
 ## 📚 Reference
 
@@ -40,12 +41,20 @@ This directory contains comprehensive documentation organized by category. For q
 ```
 docs/
 ├── README.md (this file)
-├── Spec.md
 ├── QUOTA_ANALYSIS_GUIDE.md
+├── QUOTA_IMPLEMENTATION_SUMMARY.md
+├── QUOTA_TEST_FRAMEWORK.md
+├── QUOTA_VALIDATION_REPORT.md
 ├── SKU_PROVIDER_GUIDE.md
+├── SKU_EXPANSION_SUMMARY.md
+├── SKU_QUICK_REFERENCE.md
+├── Archive/
+│   └── service-comparison-legacy/
+│       └── README.md
 ├── Usage/
 │   ├── README_USAGE.md
 │   └── QUICKSTART.md
+│   └── SERVICES_COMPARE.md
 ├── Features/
 │   ├── FEATURE_SUMMARY.md
 │   ├── COMPARATIVE_ANALYSIS.md
@@ -55,6 +64,7 @@ docs/
 ├── Implementation/
 │   ├── IMPLEMENTATION_CHECKLIST.md
 │   └── IMPLEMENTATION_SUMMARY.md
+│   └── Spec.md
 ├── Reference/
 │   ├── INDEX.md
 │   ├── QUICK_REFERENCE.md
@@ -65,6 +75,8 @@ docs/
     ├── E2E_TEST_SUMMARY.md
     ├── COMPLETION_CHECKLIST.md
     └── COMPLETION_REPORT.md
+
+Note: legacy/obsolete documentation may be moved under `docs/Archive/`.
 ```
 
 ## 🚀 Quick Navigation

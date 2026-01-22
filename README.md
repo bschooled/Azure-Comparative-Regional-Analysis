@@ -35,25 +35,181 @@ After running the tool, you'll get:
 6. **service_availability_comparison.json** - Rich metadata comparison ⭐ NEW
 7. **availability_summary.txt** - Human-readable summary report ⭐ NEW
 
+`services_compare.sh` (region-only comparison) produces:
+
+- `<source>_vs_<target>_providers.json` (JSON source-of-truth)
+- `<source>_vs_<target>_providers.csv` (SKU-granular CSV derived from JSON)
+
 ## Quick Start
 
 ```bash
-# Tenant-wide analysis
+# Inventory-driven analysis (ARG + pricing + availability + comparative tables)
 ./inv.sh --all --source-region eastus --target-region westeurope
 
-# Specific resource group
+# Inventory-driven analysis for a specific resource group
 ./inv.sh --rg <subId>:<rgName> --source-region eastus --target-region westeurope
+
+# Region-only comparison (no inventory)
+./services_compare.sh --source-region westus2 --target-region swedencentral
 ```
 
-See [docs/Usage/QUICKSTART.md](docs/Usage/QUICKSTART.md) for detailed examples.
+### Comparative Analyis - Example
+
+You can quickly gain insights by generating your inventory and utilizing the comparative_analysis.sh tool.
+The extensive list is available in the output json and csv files which will be created in the output folder for your own analysis.
+
+**Example of existing usage in Central US and seeing if I have any gaps**
+Redirect to a text file to read the full output.
+```text
+═══════════════════════════════════════════════════════════════════════════════
+MICROSOFT.STORAGE - ACCOUNT TYPE COMPARISON
+═══════════════════════════════════════════════════════════════════════════════
+
+Status: FULL_MATCH
+SKU Counts: centralus=26, swedencentral=26
+
+Account Types (centralus | swedencentral):
+─────────────────────────────────────────────────────────────────────────────
+BlobStorage                       3 | 3
+BlockBlobStorage                  2 | 2
+FileStorage                       8 | 8
+Storage                           5 | 5
+StorageV2                         8 | 8
+
+═══════════════════════════════════════════════════════════════════════════════
+PROVIDERS WITH NOTABLE DIFFERENCES (Top 15)
+═══════════════════════════════════════════════════════════════════════════════
+
+Format: Provider | Source Count | Target Count | Difference | Status
+─────────────────────────────────────────────────────────────────────────────
+Microsoft.Compute                    1135 |  1043 |    92 | SOURCE_EXTENDED
+Microsoft.Storage                      26 |    26 |     0 | FULL_MATCH
+Microsoft.Compute/disks                 7 |     7 |     0 | FULL_MATCH
+
+═══════════════════════════════════════════════════════════════════════════════
+Full comparison data available in:
+  JSON: output/inventory_centralus_vs_swedencentral_providers.json
+  CSV:  output/inventory_centralus_vs_swedencentral_providers.csv
+═══════════════════════════════════════════════════════════════════════════════
+```
+
+See [docs/Usage/QUICKSTART.md](docs/Usage/QUICKSTART.md) for walkthrough examples.
+
+## More Examples
+
+### Inventory scopes
+
+```bash
+# Management group scope
+./inv.sh --mg <managementGroupId> --source-region eastus2 --target-region uksouth
+
+# Resource group scope
+./inv.sh --rg <subId>:<rgName> --source-region westus3 --target-region centralus
+```
+
+### Use a pre-generated inventory
+
+```bash
+# Skip ARG discovery and use an existing inventory JSON
+./inv.sh --all --source-region centralus --target-region swedencentral \
+    --inventory-file test_inventories/inventory_compute.json
+```
+
+### Filter resource types (inventory workflow)
+
+```bash
+./inv.sh --all --source-region eastus --target-region westeurope \
+    --resource-types "Microsoft.Compute/virtualMachines,Microsoft.Compute/disks"
+```
+
+### Region-only comparison outputs
+
+```bash
+./services_compare.sh --source-region westus2 --target-region swedencentral --output-dir output
+```
+
+### Output Examples
+
+Example of full Services comparison between West US 2 and Sweden Central. 
+**Your own analysis may return slightly different results, this is due to subscription level enablement of services**
+
+```text
+==============================
+SERVICE COMPARISON SUMMARY
+==============================
+Source Region: westus2
+Target Region: swedencentral
+
+Top 20 providers by SKU gaps (prioritizing Compute):
+─────────────────────────────────────────────────────────────────
+Provider               Gap  OnlySrc  OnlyTgt  SrcSKUs  TgtSKUs  Status
+Compute                118  104      14       1071     981      SOURCE_EXTENDED
+DBforPostgreSQL        54   0        54       0        54       SOURCE_RESTRICTED
+Sql                    26   26       0        170      144      SOURCE_EXTENDED
+Kusto                  20   16       4        40       28       SOURCE_EXTENDED
+AnalysisServices       11   11       0        11       0        SOURCE_EXTENDED
+DevCenter              11   0        11       0        11       TARGET_EXTENDED
+DBforMySQL             9    9        0        60       51       SOURCE_EXTENDED
+AVS                    4    4        0        16       12       SOURCE_EXTENDED
+DataMigration          4    4        0        4        0        SOURCE_EXTENDED
+OnlineExperimentation  4    0        4        0        4        TARGET_EXTENDED
+Workloads              4    4        0        4        0        SOURCE_EXTENDED
+CognitiveServices      3    3        0        12       9        SOURCE_EXTENDED
+ApiManagement          1    1        0        8        7        TARGET_EXTENDED
+Experimentation        1    1        0        1        0        SOURCE_EXTENDED
+Synapse                1    1        0        2        1        SOURCE_EXTENDED
+
+Provider status summary:
+  AVAILABLE_NO_SKUS: 292
+  FULL_MATCH: 8
+  SOURCE_EXTENDED: 12
+  SOURCE_RESTRICTED: 1
+  TARGET_EXTENDED: 4
+```
+The below example shows output from **inv.sh**, which filters on your own resouces. It also analyzes quota usage in source and target region.
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ SERVICE QUOTA ANALYSIS                                                        ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+✓  All resources will fit within target quota
+
+  Top 5 Quota Consumers in Source Region:
+    Standard BS Family vCPUs                        24 / 100   24% used
+    Total Regional vCPUs                            24 / 100   24% used
+    Total Regional Low-priority vCPUs                0 / 100    0% used
+    Virtual Machines                                 9 / 25000   0% used
+    Availability Sets                                0 / 2500   0% used
+
+  ✓  158 quota metrics available
+
+  Target Region Status:
+  ℹ  Target region quota data ready for analysis
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ AVAILABILITY IN TARGET REGION: swedencentral                                  ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+  Service Types Checked:                   26
+  Available in Target:                     26
+  ✓  All service types available in target region
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ COMPARATIVE REGIONAL ANALYSIS                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+     Service Types Analyzed:                  23
+  ✓  23 services available in both regions
+  Total Resources in Source:               0
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 ## Documentation
 
-- [Usage Guide](docs/Usage/README_USAGE.md) - Complete user guide with examples
-- [Quick Start](docs/Usage/QUICKSTART.md) - Quick start guide and common scenarios
-- [Features Overview](docs/Features/FEATURE_SUMMARY.md) - Feature details and capabilities
-
-For detailed architecture, implementation details, troubleshooting guides, and reference materials, see [docs/README.md](docs/README.md).
+- [Quick Start](docs/Usage/QUICKSTART.md) - Common scenarios and output review
+- [Inventory Workflow](docs/Usage/README_USAGE.md) - Full `inv.sh` usage and outputs
+- [Region-Only Comparison](docs/Usage/SERVICES_COMPARE.md) - Full `services_compare.sh` usage and outputs
 
 ## Requirements
 
@@ -79,20 +235,3 @@ Phase 5: Comparative Regional Analysis ← NEW
 ```
 
 See [docs/Usage/README_USAGE.md](docs/Usage/README_USAGE.md) for full architecture details.
-
-## Recent Updates
-
-✨ **NEW - Phase 5: Comparative Regional Analysis**
-- Cross-region service availability comparison tables
-- Multiple output formats (CSV, JSON, Text)
-- Service inventory counts and statistics
-- Restriction and limitation tracking
-- See [docs/Features/FEATURE_SUMMARY.md](docs/Features/FEATURE_SUMMARY.md) for details
-
-## For More Information
-
-- **Usage Guide**: See [docs/Usage/README_USAGE.md](docs/Usage/README_USAGE.md)
-- **Quick Examples**: See [docs/Usage/QUICKSTART.md](docs/Usage/QUICKSTART.md)  
-- **Feature Details**: See [docs/Features/COMPARATIVE_ANALYSIS.md](docs/Features/COMPARATIVE_ANALYSIS.md)
-- **Full Documentation Index**: See [docs/README.md](docs/README.md)
-- **Original Spec**: See [docs/Spec.md](docs/Spec.md)

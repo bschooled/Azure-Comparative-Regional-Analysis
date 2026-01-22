@@ -187,9 +187,15 @@ fetch_providers_info() {
     log_info "Fetching provider information..."
     
     if is_cache_valid "$PROVIDERS_CACHE"; then
+        # Validate cached JSON to avoid jq parse errors from truncated cache files
+        if ! jq empty "$PROVIDERS_CACHE" 2>/dev/null; then
+            log_warning "Cached provider information is invalid; refetching: $PROVIDERS_CACHE"
+            rm -f "$PROVIDERS_CACHE" 2>/dev/null || true
+        else
         log_info "Using cached provider information"
         increment_cache_hit
         return 0
+        fi
     fi
     
     log_info "Querying Azure for provider information..."
@@ -387,9 +393,11 @@ check_vm_availability() {
         return
     fi
     
-    # Check for restrictions
-    local restrictions=$(echo "$sku_info" | jq -c '.restrictions // []')
-    local has_restrictions=$(echo "$restrictions" | jq '. | length > 0')
+    # Check for restrictions (defensive against malformed/truncated JSON)
+    local restrictions
+    restrictions=$(echo "$sku_info" | jq -c '.restrictions // []' 2>/dev/null || echo '[]')
+    local has_restrictions
+    has_restrictions=$(echo "$restrictions" | jq '. | length > 0' 2>/dev/null || echo 'false')
     
     if [[ "$has_restrictions" == "true" ]]; then
         echo "{\"type\": \"$resource_type\", \"armSkuName\": \"$vm_size\", \"targetRegion\": \"$TARGET_REGION\", \"serviceAvailable\": true, \"skuAvailable\": false, \"available\": false, \"restrictions\": $restrictions, \"reason\": \"SKU has restrictions\"}"
@@ -431,8 +439,10 @@ check_disk_availability() {
         return
     fi
     
-    local restrictions=$(echo "$sku_info" | jq -c '.restrictions // []')
-    local has_restrictions=$(echo "$restrictions" | jq '. | length > 0')
+    local restrictions
+    restrictions=$(echo "$sku_info" | jq -c '.restrictions // []' 2>/dev/null || echo '[]')
+    local has_restrictions
+    has_restrictions=$(echo "$restrictions" | jq '. | length > 0' 2>/dev/null || echo 'false')
     
     if [[ "$has_restrictions" == "true" ]]; then
         echo "{\"type\": \"$resource_type\", \"sku\": \"$disk_sku\", \"targetRegion\": \"$TARGET_REGION\", \"serviceAvailable\": true, \"skuAvailable\": false, \"available\": false, \"restrictions\": $restrictions, \"reason\": \"SKU has restrictions\"}"
@@ -474,8 +484,10 @@ check_storage_availability() {
         return
     fi
     
-    local restrictions=$(echo "$sku_info" | jq -c '.restrictions // []')
-    local has_restrictions=$(echo "$restrictions" | jq '. | length > 0')
+    local restrictions
+    restrictions=$(echo "$sku_info" | jq -c '.restrictions // []' 2>/dev/null || echo '[]')
+    local has_restrictions
+    has_restrictions=$(echo "$restrictions" | jq '. | length > 0' 2>/dev/null || echo 'false')
     
     if [[ "$has_restrictions" == "true" ]]; then
         echo "{\"type\": \"$resource_type\", \"sku\": \"$sku\", \"targetRegion\": \"$TARGET_REGION\", \"serviceAvailable\": true, \"skuAvailable\": false, \"available\": false, \"restrictions\": $restrictions, \"reason\": \"SKU has restrictions\"}"
