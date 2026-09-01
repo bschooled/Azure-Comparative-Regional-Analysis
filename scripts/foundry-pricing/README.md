@@ -14,11 +14,22 @@ You do not need to clone the full repository. Download
 [latest GitHub release](https://github.com/bschooled/Azure-Comparative-Regional-Analysis/releases/latest)
 and extract it:
 
+**Bash**
+
 ```bash
 gh release download \
   --repo bschooled/Azure-Comparative-Regional-Analysis \
   --pattern foundry-pricing-toolkit.zip
 unzip foundry-pricing-toolkit.zip
+```
+
+**PowerShell**
+
+```powershell
+gh release download `
+  --repo bschooled/Azure-Comparative-Regional-Analysis `
+  --pattern foundry-pricing-toolkit.zip
+Expand-Archive .\foundry-pricing-toolkit.zip -DestinationPath .
 ```
 
 The archive contains one `foundry-pricing/` directory:
@@ -83,26 +94,35 @@ PowerShell launchers first try the Windows `py` launcher and then fall back to
 
 ## 🚀 Collect pricing and model data
 
-The examples below use Bash from the repository root. In the downloaded
-package, replace `./scripts/foundry-pricing/` with `./foundry-pricing/`.
+Use the entry point for your shell and installation:
 
-PowerShell users can replace the `.sh` suffix with `.ps1`, for example:
+| Environment | Bash | PowerShell |
+|---|---|---|
+| Repository root | `./scripts/foundry-pricing/foundry_pricing_probe.sh` | `.\scripts\foundry-pricing\foundry_pricing_probe.ps1` |
+| Extracted package parent | `./foundry-pricing/foundry_pricing_probe.sh` | `.\foundry-pricing\foundry_pricing_probe.ps1` |
 
-```powershell
-.\foundry-pricing\foundry_pricing_probe.ps1 `
-  --resource-group rg-example-ai `
-  --account foundry-example `
-  --region eastus2
-```
+The examples below show repository paths. For an extracted package, remove
+`scripts/` from the path.
 
 ### Foundry resource and its default region
 
 When `--region` is omitted, the account location is used:
 
+**Bash**
+
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
   --resource-group rg-example-ai \
   --account foundry-example \
+  --project project-example
+```
+
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
   --project project-example
 ```
 
@@ -113,6 +133,8 @@ needed.
 
 Repeat `--region` or provide a comma-separated list:
 
+**Bash**
+
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
   --resource-group rg-example-ai \
@@ -121,6 +143,24 @@ Repeat `--region` or provide a comma-separated list:
   --region swedencentral
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2 `
+  --region swedencentral
+```
+
+Comma-separated values work in both shells:
+
+```text
+--region eastus2,westeurope
+```
+
+**Bash**
+
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
   --resource-group rg-example-ai \
@@ -128,9 +168,20 @@ Repeat `--region` or provide a comma-separated list:
   --region eastus2,westeurope
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2,westeurope
+```
+
 ### 🌐 Retail Prices without Azure access
 
 Retail-only mode does not require Azure CLI or access to a Foundry resource:
+
+**Bash**
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
@@ -138,7 +189,17 @@ Retail-only mode does not require Azure CLI or access to a Foundry resource:
   --region eastus2,westeurope
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --retail-only `
+  --region eastus2,westeurope
+```
+
 Limit results to one or more exact Retail Prices `productName` values:
+
+**Bash**
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
@@ -148,10 +209,22 @@ Limit results to one or more exact Retail Prices `productName` values:
   --product "Azure OpenAI"
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --retail-only `
+  --region eastus2 `
+  --product "Azure Fireworks Models" `
+  --product "Azure OpenAI"
+```
+
 ### 🔐 Authenticated pricing APIs
 
 Authenticated pricing is deliberately disabled unless
 `--authenticated-pricing` is supplied:
+
+**Bash**
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
@@ -161,7 +234,19 @@ Authenticated pricing is deliberately disabled unless
   --authenticated-pricing
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2 `
+  --authenticated-pricing
+```
+
 Override the subscription offer used by the legacy Rate Card API:
+
+**Bash**
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
@@ -174,7 +259,22 @@ Override the subscription offer used by the legacy Rate Card API:
   --rate-card-region US
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2 `
+  --authenticated-pricing `
+  --rate-card-offer-id MS-AZR-0003P `
+  --rate-card-locale en-US `
+  --rate-card-region US
+```
+
 For a billing-profile-scoped negotiated Price Sheet:
+
+**Bash**
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_probe.sh \
@@ -186,7 +286,21 @@ For a billing-profile-scoped negotiated Price Sheet:
   --billing-profile BILLING_PROFILE_ID
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2 `
+  --authenticated-pricing `
+  --billing-account BILLING_ACCOUNT_ID `
+  --billing-profile BILLING_PROFILE_ID
+```
+
 ### 🎆 Optional Fireworks catalog
+
+**Bash**
 
 ```bash
 az extension add --name ml
@@ -195,6 +309,18 @@ az extension add --name ml
   --resource-group rg-example-ai \
   --account foundry-example \
   --region eastus2 \
+  --query-fireworks-catalog
+```
+
+**PowerShell**
+
+```powershell
+az extension add --name ml
+
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2 `
   --query-fireworks-catalog
 ```
 
@@ -242,19 +368,37 @@ The primary pricing CSV includes:
 The query script uses the newest
 `<toolkit-directory>/output/**/foundry-pricing.csv` by default:
 
+**Bash**
+
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_query.sh sol
+```
+
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 sol
 ```
 
 ![Foundry Price Sheet](assets/foundry-pricing-output.png)
 
 A fuzzy search can tolerate minor spelling errors:
 
+**Bash**
+
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_query.sh firewroks
 ```
 
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 firewroks
+```
+
 Useful filters can be combined:
+
+**Bash**
 
 ```bash
 # Fireworks models below a unit-price threshold
@@ -280,6 +424,32 @@ Useful filters can be combined:
   --json
 ```
 
+**PowerShell**
+
+```powershell
+# Fireworks models below a unit-price threshold
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 kimi `
+  --fireworks-only `
+  --max-price 0.01 `
+  --sort price
+
+# Global provisioned-throughput meters
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 `
+  --ptu-only `
+  --scope global `
+  --sort price
+
+# Input pricing in selected regions
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 gpt-5 `
+  --region eastus2,westeurope `
+  --direction input
+
+# Machine-readable results from a specific file
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 mistral `
+  --csv .\scripts\foundry-pricing\output\example\foundry-pricing.csv `
+  --json
+```
+
 Additional filters include `--provider`, `--product`, `--sku`, `--category`,
 `--price-type`, `--unit`, `--min-price`, `--max-price`, and `--threshold`.
 Use `--columns` to choose table columns and `--limit` to control result count.
@@ -300,9 +470,21 @@ Use `--columns` to choose table columns and `--limit` to control result count.
 | `--timeout` | Set HTTP and Azure CLI timeout seconds |
 | `--verbose` | Print external commands and pagination progress |
 
-Run `foundry_pricing_probe.sh --help` or
-`foundry_pricing_query.sh --help` for the complete option list. PowerShell
-users can run the corresponding `.ps1` entry point with `--help`.
+For the complete option list:
+
+**Bash**
+
+```bash
+./scripts/foundry-pricing/foundry_pricing_probe.sh --help
+./scripts/foundry-pricing/foundry_pricing_query.sh --help
+```
+
+**PowerShell**
+
+```powershell
+.\scripts\foundry-pricing\foundry_pricing_probe.ps1 --help
+.\scripts\foundry-pricing\foundry_pricing_query.ps1 --help
+```
 
 ## 📚 Official Microsoft references
 
