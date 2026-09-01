@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": {
+      "value": "${ANALYSIS_NAME_PREFIX}"
+    },
+    "environment": {
+      "value": "${ANALYSIS_ENVIRONMENT}"
+    },
+    "siteSuffix": {
+      "value": "${ANALYSIS_SITE_SUFFIX}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "analysisSubscriptionId": {
+      "value": "${AZURE_SUBSCRIPTION_ID}"
+    },
+    "defaultSourceRegion": {
+      "value": "${ANALYSIS_SOURCE_REGION}"
+    },
+    "defaultTargetRegion": {
+      "value": "${ANALYSIS_TARGET_REGION}"
+    },
+    "webAuthClientId": {
+      "value": "${WEB_AUTH_CLIENT_ID}"
+    },
+    "webAuthTenantId": {
+      "value": "${WEB_AUTH_TENANT_ID}"
+    },
+    "webAuthClientCredentialSettingName": {
+      "value": "${WEB_AUTH_CLIENT_SECRET_SETTING_NAME}"
+    },
+    "functionAuthClientId": {
+      "value": "${FUNCTION_AUTH_CLIENT_ID}"
+    },
+    "functionAuthTenantId": {
+      "value": "${FUNCTION_AUTH_TENANT_ID}"
+    },
+    "functionContainerImage": {
+      "value": "${FUNCTION_CONTAINER_IMAGE}"
+    }
+  }
+}

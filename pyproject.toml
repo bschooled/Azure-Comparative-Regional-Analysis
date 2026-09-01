@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=83", "wheel>=0.47"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "azure-comparative-regional-analysis"
+version = "0.1.0"
+description = "Python helpers for curated Azure regional comparison enrichment and rich console rendering"
+requires-python = ">=3.10"
+dependencies = [
+  "rich>=15.0.0,<16"
+]
+
+[project.scripts]
+azure-region-compare = "azure_compare_cli.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

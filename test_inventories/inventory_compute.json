@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "source_region": "eastus",
+    "generated_at": "2024-01-20",
+    "description": "Compute-focused inventory for VM and disk testing"
+  },
+  "resources": [
+    {
+      "id": "VM001",
+      "type": "microsoft.compute/virtualmachines",
+      "vmSize": "Standard_B1s"
+    },
+    {
+      "id": "VM002",
+      "type": "microsoft.compute/virtualmachines",
+      "vmSize": "Standard_B2s"
+    },
+    {
+      "id": "VM003",
+      "type": "microsoft.compute/virtualmachines",
+      "vmSize": "Standard_D2s_v3"
+    },
+    {
+      "id": "DISK001",
+      "type": "microsoft.compute/disks",
+      "diskSku": "Standard_LRS"
+    },
+    {
+      "id": "DISK002",
+      "type": "microsoft.compute/disks",
+      "diskSku": "Premium_LRS"
+    },
+    {
+      "id": "DISK003",
+      "type": "microsoft.compute/disks",
+      "diskSku": "StandardSSD_LRS"
+    }
+  ]
+}

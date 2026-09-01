@@ -1,0 +1,15 @@
+using './main.bicep'
+
+param namePrefix = readEnvironmentVariable('ANALYSIS_NAME_PREFIX', 'azcomparereg')
+param environment = readEnvironmentVariable('ANALYSIS_ENVIRONMENT', 'dev')
+param siteSuffix = readEnvironmentVariable('ANALYSIS_SITE_SUFFIX', '')
+param webAuthClientId = readEnvironmentVariable('WEB_AUTH_CLIENT_ID', '')
+param webAuthClientCredentialSettingName = readEnvironmentVariable('WEB_AUTH_CLIENT_SECRET_SETTING_NAME', '')
+param functionAuthClientId = readEnvironmentVariable('FUNCTION_AUTH_CLIENT_ID', '')
+param functionAuthTenantId = readEnvironmentVariable('FUNCTION_AUTH_TENANT_ID', readEnvironmentVariable('WEB_AUTH_TENANT_ID', ''))
+param defaultSourceRegion = readEnvironmentVariable('ANALYSIS_SOURCE_REGION', readEnvironmentVariable('AZURE_LOCATION', 'canadacentral'))
+param defaultTargetRegion = readEnvironmentVariable('ANALYSIS_TARGET_REGION', 'eastus')
+param cloudEnvironment = readEnvironmentVariable('AZURE_CLOUD_ENVIRONMENT', 'AzureCloud')
+param armEndpoint = readEnvironmentVariable('ARM_ENDPOINT', 'https://management.azure.com')
+param managementScope = readEnvironmentVariable('MANAGEMENT_SCOPE', '${armEndpoint}/.default')
+param azureAuthorityHost = readEnvironmentVariable('AZURE_AUTHORITY_HOST', 'https://login.microsoftonline.com')

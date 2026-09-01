@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "source_region": "northeurope",
+    "generated_at": "2024-01-20",
+    "description": "Cache and container services inventory"
+  },
+  "resources": [
+    {
+      "id": "REDIS001",
+      "type": "microsoft.cache/redis",
+      "sku": "Basic",
+      "size": "c0"
+    },
+    {
+      "id": "REDIS002",
+      "type": "microsoft.cache/redis",
+      "sku": "Standard",
+      "size": "c1"
+    },
+    {
+      "id": "REDIS003",
+      "type": "microsoft.cache/redis",
+      "sku": "Premium",
+      "size": "p1"
+    },
+    {
+      "id": "AKS001",
+      "type": "microsoft.containerservice/managedclusters",
+      "vmSize": "Standard_D2s_v3"
+    },
+    {
+      "id": "AKS002",
+      "type": "microsoft.containerservice/managedclusters",
+      "vmSize": "Standard_B2ms"
+    },
+    {
+      "id": "REGISTRY001",
+      "type": "microsoft.containerregistry/registries",
+      "sku": "Basic"
+    },
+    {
+      "id": "REGISTRY002",
+      "type": "microsoft.containerregistry/registries",
+      "sku": "Premium"
+    }
+  ]
+}

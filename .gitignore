@@ -1,0 +1,72 @@
+# Cache directory
+.cache/
+
+# Output directory
+output/
+
+# Foundry pricing toolkit artifacts
+output/foundry-pricing/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.pricing_temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.azure/
+.playwright
+.playwright-cli
+.claude
+.serena/
+
+# Python
+.venv/
+.venv-debug/
+__pycache__/
+*.pyc
+*.egg-info/
+data/generated/
+
+# Node
+node_modules/
+web_app/node_modules/
+web_app/dist/
+
+# Sensitive data
+*.credentials
+*.secrets
+.mcp.json
+
+*.mainapp*
+*.tmp*
+
+# Repository-local agent skills
+.github/skills/
+
+# Generated Bicep output
+infra/main.json
+infra/modules/*.json
+
+# Local archive for debug artifacts
+archive/
+.deploy/
+
+# Test output data
+test_e2e/*.log
+test_e2e/report.txt
+test_e2e/all_tests/
+test-results/
+
+# Service validation reports
+output/service_validation_*.json

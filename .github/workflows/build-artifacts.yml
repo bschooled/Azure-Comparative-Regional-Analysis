@@ -1,0 +1,334 @@
+# Build and publish deployment artifacts so deploy.sh can consume pre-built
+# packages instead of building locally.
+#
+# Function App container → ghcr.io (public)
+# Web App package       → GitHub Release asset (zip)
+
+name: Build Deployment Artifacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'azure_pipeline/function_app/**'
+      - 'azure_pipeline/probe_function_app/requirements.txt'
+      - 'web_app/**'
+      - 'data/feature_catalog/**'
+      - 'src/azure_compare_cli/**'
+      - 'pyproject.toml'
+      - '.npmrc'
+      - '.trivyignore'
+      - '.github/workflows/build-artifacts.yml'
+  pull_request:
+    paths:
+      - 'azure_pipeline/function_app/**'
+      - 'azure_pipeline/probe_function_app/requirements.txt'
+      - 'web_app/**'
+      - 'data/feature_catalog/**'
+      - 'src/azure_compare_cli/**'
+      - 'pyproject.toml'
+      - '.npmrc'
+      - '.trivyignore'
+      - '.github/workflows/build-artifacts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  FUNCTION_IMAGE_NAME: ${{ github.repository }}/function-app
+  PIP_INDEX_URL: https://packagefeedproxy.microsoft.io/pypi/simple
+
+jobs:
+  dependency-audit:
+    name: Audit Application Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: web_app/package-lock.json
+
+      - name: Audit npm production dependencies
+        id: npm-production-audit
+        continue-on-error: true
+        working-directory: web_app
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Audit all npm dependencies
+        id: npm-all-audit
+        continue-on-error: true
+        working-directory: web_app
+        run: npm audit --audit-level=high
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install Python audit tooling
+        run: python -m pip install --upgrade pip pip-audit
+
+      - name: Prepare Python project dependencies
+        run: |
+          mkdir -p .audit
+          python - <<'PY'
+          import pathlib
+          import tomllib
+
+          project = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+          dependencies = project.get("project", {}).get("dependencies", [])
+          pathlib.Path(".audit/project-requirements.txt").write_text(
+              "".join(f"{dependency}\n" for dependency in dependencies)
+          )
+          PY
+
+      - name: Audit Python requirements and project dependencies
+        run: |
+          set -euo pipefail
+
+          audit_requirements() {
+            local name="$1"
+            local requirements="$2"
+            local status=0
+
+            python -m pip_audit \
+              --requirement "$requirements" \
+              --index-url "$PIP_INDEX_URL" \
+              --progress-spinner off \
+              --format json \
+              --output ".audit/${name}.json" || status=$?
+
+            if (( status > 1 )); then
+              echo "::error::pip-audit failed while resolving ${requirements}"
+              exit "$status"
+            fi
+          }
+
+          audit_requirements function azure_pipeline/function_app/requirements.txt
+          audit_requirements probe azure_pipeline/probe_function_app/requirements.txt
+          audit_requirements project .audit/project-requirements.txt
+
+          python - <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          # pip-audit does not expose consistent severity data, so fail on every
+          # fixable advisory; this is stricter than the high/critical minimum.
+          actionable = []
+          for report_path in sorted(pathlib.Path(".audit").glob("*.json")):
+              report = json.loads(report_path.read_text())
+              for dependency in report.get("dependencies", []):
+                  for vulnerability in dependency.get("vulns", []):
+                      fixes = vulnerability.get("fix_versions", [])
+                      if fixes:
+                          actionable.append(
+                              (
+                                  report_path.stem,
+                                  dependency["name"],
+                                  dependency["version"],
+                                  vulnerability["id"],
+                                  ", ".join(fixes),
+                              )
+                          )
+
+          if actionable:
+              for source, package, version, vulnerability, fixes in actionable:
+                  print(
+                      f"::error title=Actionable Python vulnerability::{source}: "
+                      f"{package} {version} has {vulnerability}; upgrade to {fixes}"
+                  )
+              sys.exit(1)
+
+          print("No fixable Python dependency vulnerabilities found.")
+          PY
+
+      - name: Enforce npm audit results
+        if: always()
+        env:
+          PRODUCTION_AUDIT_OUTCOME: ${{ steps.npm-production-audit.outcome }}
+          ALL_AUDIT_OUTCOME: ${{ steps.npm-all-audit.outcome }}
+        run: |
+          if [[ "$PRODUCTION_AUDIT_OUTCOME" != success || "$ALL_AUDIT_OUTCOME" != success ]]; then
+            echo "::error::One or more npm vulnerability audits failed."
+            exit 1
+          fi
+
+  build-function-container:
+    name: Build Function App Container
+    needs: dependency-audit
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+      image_ref: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize container image name
+        id: image
+        env:
+          IMAGE_NAME: ${{ env.REGISTRY }}/${{ env.FUNCTION_IMAGE_NAME }}
+        run: echo "ref=${IMAGE_NAME,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image.outputs.ref }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - name: Build container
+        uses: docker/build-push-action@v7
+        with:
+          context: azure_pipeline/function_app
+          load: true
+          tags: |
+            ${{ steps.image.outputs.ref }}:${{ github.sha }}
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Scan Function App container
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.image.outputs.ref }}:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          trivyignores: .trivyignore
+
+      - name: Push container
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          while IFS= read -r tag; do
+            [[ -n "$tag" ]] && docker push "$tag"
+          done <<< "$IMAGE_TAGS"
+
+  build-web-package:
+    name: Build Web App Package
+    needs: dependency-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: web_app/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install -e .
+
+      - name: Build feature catalog
+        run: |
+          if [[ -f data/feature_catalog/services.json ]]; then
+            mkdir -p data/generated
+            PYTHONPATH="$GITHUB_WORKSPACE/src${PYTHONPATH:+:$PYTHONPATH}" \
+              python3 -m azure_compare_cli build-catalog \
+                --source data/feature_catalog/services.json \
+                --output-json data/generated/feature_catalog.snapshot.json \
+                --output-sqlite data/generated/feature_catalog.db \
+                --output-identity-json data/generated/canonical_service_identity.snapshot.json
+          fi
+
+      - name: Install and build web app
+        working-directory: web_app
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Assemble deployment package
+        run: |
+          PACKAGE_ROOT=".deploy/web"
+          rm -rf "$PACKAGE_ROOT" .deploy/web-package.zip
+          mkdir -p "$PACKAGE_ROOT"
+
+          cp web_app/server.js "$PACKAGE_ROOT/server.js"
+          cp -R web_app/dist "$PACKAGE_ROOT/dist"
+
+          if [[ -d data/generated ]]; then
+            mkdir -p "$PACKAGE_ROOT/data/generated"
+            for artifact in \
+              feature_catalog.snapshot.json \
+              feature_catalog.db \
+              canonical_service_identity.snapshot.json \
+              canonical_identity_gaps.snapshot.json; do
+              [[ -f "data/generated/$artifact" ]] && cp "data/generated/$artifact" "$PACKAGE_ROOT/data/generated/$artifact"
+            done
+          fi
+
+          printf '%s\n' '{"name":"azure-comparative-regional-analysis-web-runtime","version":"0.1.0","private":true,"description":"Runtime package for the Azure regional analysis web app","engines":{"node":">=22.12.0"},"scripts":{"start":"node server.js"},"dependencies":{"@azure/identity":"^4.13.1","express":"^5.2.1"}}' | python3 -m json.tool > "$PACKAGE_ROOT/package.json"
+
+          cd "$PACKAGE_ROOT"
+          npm install --omit=dev --ignore-scripts --no-package-lock --engine-strict
+          cd "$GITHUB_WORKSPACE"
+          (cd "$PACKAGE_ROOT" && zip -qr "$GITHUB_WORKSPACE/.deploy/web-package.zip" .)
+
+      - name: Upload web package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-package
+          path: .deploy/web-package.zip
+          retention-days: 90
+
+  create-release:
+    name: Create Release
+    needs: [build-function-container, build-web-package]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download web package
+        uses: actions/download-artifact@v8
+        with:
+          name: web-package
+          path: .deploy
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          TAG="build-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Generated tag: $TAG"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            --title "Build ${{ steps.tag.outputs.tag }}" \
+            --notes "Automated build from commit ${GITHUB_SHA::7}
+
+          **Artifacts:**
+          - \`web-package.zip\` — Pre-built web app deployment package
+          - Function App container: \`${{ env.REGISTRY }}/${{ env.FUNCTION_IMAGE_NAME }}:${{ needs.build-function-container.outputs.image_tag }}\`" \
+            --latest \
+            .deploy/web-package.zip

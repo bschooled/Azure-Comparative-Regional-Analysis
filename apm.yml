@@ -1,0 +1,15 @@
+name: Azure-Comparative-Regional-Analysis
+version: 1.0.0
+description: APM project for Azure-Comparative-Regional-Analysis
+author: Bradly Schooley
+targets:
+- claude
+- copilot
+dependencies:
+  apm: []
+  mcp:
+  - microsoftdocs/mcp
+  - com.microsoft/azure
+  - io.github.upstash/context7
+includes: auto
+scripts: {}

@@ -1,0 +1,23 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "ANALYSIS_SUBSCRIPTION_ID": "00000000-0000-0000-0000-000000000000",
+    "ANALYSIS_SOURCE_REGION": "eastus",
+    "ANALYSIS_TARGET_REGION": "westus2",
+    "DATA_STORAGE__tableServiceUri": "https://<storage-account>.table.core.windows.net",
+    "BLOB_STORAGE__blobServiceUri": "https://<storage-account>.blob.core.windows.net",
+    "PRICING_CONTAINER_NAME": "pricing-cache",
+    "RETAIL_PRICES_API_URL": "https://prices.azure.com/api/retail/prices",
+    "RETAIL_PRICES_API_VERSION": "2023-01-01-preview",
+    "PRICING_CURRENCY_CODE": "",
+    "PRICING_BILLING_ACCOUNT_NAME": "",
+    "PRICING_BILLING_PROFILE_NAME": "",
+    "PRICING_BILLING_PERIOD_NAME": "",
+    "PRICING_BILLING_AGREEMENT_TYPE": "",
+    "COMPARISON_TABLE_NAME": "CurrentComparisons",
+    "RUNS_TABLE_NAME": "RefreshRuns",
+    "REFRESH_SCHEDULE": "0 0 4 * * *"
+  }
+}

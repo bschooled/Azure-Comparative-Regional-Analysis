@@ -1,0 +1,12 @@
+# Microsoft-managed Azure Functions extension bundle 4.35.0.
+# The repository cannot replace these assemblies independently of the base image.
+CVE-2026-48109
+CVE-2026-48506
+
+# Microsoft-managed Python worker packages embedded in the Functions base image.
+# Application Python dependencies are audited separately by pip-audit.
+GHSA-6v7p-g79w-8964
+CVE-2025-47273
+
+# Microsoft-managed startupcmdgen binary embedded in the Functions base image.
+CVE-2026-56852

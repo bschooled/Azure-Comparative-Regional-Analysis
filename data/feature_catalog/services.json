@@ -1,0 +1,4587 @@
+{
+  "version": 1,
+  "generated_from": "canonical",
+  "services": [
+    {
+      "service_key": "azure-sql-database",
+      "display_name": "Azure SQL Database",
+      "family": "databases",
+      "summary": "Managed relational database service with tier-dependent HA, scaling, and regional feature differences.",
+      "aliases": [
+        "sql",
+        "azure sql",
+        "azure sql database"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.sql",
+          "resource_types": [
+            "servers",
+            "servers/databases",
+            "elasticpools"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "servers/databases",
+              "elasticpools"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Zone support and resiliency depend on deployment model and selected tier."
+      },
+      "capabilities": [
+        {
+          "key": "serverless",
+          "label": "Serverless compute option",
+          "category": "compute",
+          "importance": "high",
+          "notes": "Used to compare elastic cost posture for intermittently active databases.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "hyperscale",
+          "label": "Hyperscale tier",
+          "category": "scale",
+          "importance": "high",
+          "notes": "Relevant for large OLTP workloads and read scale needs.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone redundant deployment option",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Tier and SKU prerequisites still apply.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "geo_replication",
+          "label": "Active geo-replication",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important when the target region must participate in cross-region failover plans.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "auto_failover_groups",
+          "label": "Auto-failover groups",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Useful when operators want stable listener endpoints for planned and unplanned failover events.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Needed for private data plane access in regulated or internal-only environments.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "microsoft_entra_auth",
+          "label": "Microsoft Entra authentication",
+          "category": "security",
+          "importance": "medium",
+          "notes": "Important when database access must align with centralized identity controls.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "elastic_pools",
+          "label": "Elastic pools",
+          "category": "cost",
+          "importance": "medium",
+          "notes": "Useful for shared-cost SQL estates with many variable-demand databases.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "long_term_retention",
+          "label": "Long-term backup retention",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Often required for audit, retention, and recovery planning.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Often one of the broader SQL landing regions; validate exact service objective names and zone-redundant prerequisites against live SKU output."
+        },
+        "centralus": {
+          "notes": "Good target region candidate for managed SQL workloads, but verify exact SKU family names and HA prerequisites."
+        },
+        "westus2": {
+          "notes": "Common source region in migration studies; compare exact Business Critical and Hyperscale SKU generations before cutover."
+        },
+        "swedencentral": {
+          "notes": "Validate service objective naming and zone-redundant prerequisites before migration decisions."
+        }
+      }
+    },
+    {
+      "service_key": "azure-postgresql-flexible-server",
+      "display_name": "Azure Database for PostgreSQL",
+      "family": "databases",
+      "summary": "Flexible server deployment with tier and HA options that vary by region and SKU availability.",
+      "aliases": [
+        "postgres",
+        "postgresql",
+        "azure database for postgresql"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.dbforpostgresql",
+          "resource_types": [
+            "flexibleservers",
+            "servergroupsv2"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "both",
+        "notes": "Zonal and zone-redundant options depend on region and compute tier."
+      },
+      "capabilities": [
+        {
+          "key": "burstable",
+          "label": "Burstable compute tier",
+          "category": "compute",
+          "importance": "medium",
+          "notes": "Useful for cost-sensitive workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundant_ha",
+          "label": "Zone-redundant high availability",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Region and tier specific.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate burstable and high-availability requirements against the exact flexible server options in-region."
+        },
+        "centralus": {
+          "notes": "Check high-availability and compute-tier assumptions before selecting this region for PostgreSQL migrations."
+        },
+        "qatarcentral": {
+          "notes": "Recent comparison output shows flexible server provisioning restrictions in this region; validate live SKU availability before treating it as a PostgreSQL target.",
+          "capabilities": {
+            "burstable": {
+              "status": "unavailable",
+              "notes": "Treat burstable PostgreSQL flexible server availability as unavailable until live SKU output confirms otherwise in this region."
+            },
+            "zone_redundant_ha": {
+              "status": "unavailable",
+              "notes": "Zone-redundant PostgreSQL high availability should be treated as unavailable when flexible server provisioning is restricted in this region."
+            }
+          }
+        },
+        "westus2": {
+          "notes": "Compare actual SKU counts and HA posture before moving flexible server workloads from this region."
+        },
+        "swedencentral": {
+          "notes": "Treat high availability and compute-tier posture as explicit validation items during migration planning.",
+          "capabilities": {
+            "zone_redundant_ha": {
+              "status": "unknown",
+              "notes": "Validate zone-redundant high availability directly in-region before committing the migration design."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "azure-mysql-flexible-server",
+      "display_name": "Azure Database for MySQL",
+      "family": "databases",
+      "summary": "Flexible server database service with HA and burstable options that often drive region selection.",
+      "aliases": [
+        "mysql",
+        "azure database for mysql"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.dbformysql",
+          "resource_types": [
+            "flexibleservers"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "both",
+        "notes": "Availability zone support is documented, but options can still be tier-dependent."
+      },
+      "capabilities": [
+        {
+          "key": "burstable",
+          "label": "Burstable compute tier",
+          "category": "compute",
+          "importance": "medium",
+          "notes": "Useful for dev/test and seasonal workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundant_ha",
+          "label": "Zone-redundant high availability",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Tier and region prerequisites still apply.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate burstable and high-availability options against the exact flexible server requirements for this region."
+        },
+        "centralus": {
+          "notes": "Check compute tier and HA assumptions before selecting this region for MySQL migration targets."
+        },
+        "qatarcentral": {
+          "notes": "Recent comparison output returned no flexible server SKUs in this region; validate live service availability before treating it as a MySQL target.",
+          "capabilities": {
+            "burstable": {
+              "status": "unavailable",
+              "notes": "Treat burstable MySQL flexible server availability as unavailable until live SKU output confirms otherwise in this region."
+            },
+            "zone_redundant_ha": {
+              "status": "unavailable",
+              "notes": "Zone-redundant MySQL high availability should be treated as unavailable when no flexible server SKUs are returned for this region."
+            }
+          }
+        },
+        "westus2": {
+          "notes": "Compare exact flexible server SKU and HA posture before moving workloads from this region."
+        },
+        "swedencentral": {
+          "notes": "Treat zone-redundant HA and burstable posture as explicit validation items in this region.",
+          "capabilities": {
+            "zone_redundant_ha": {
+              "status": "unknown",
+              "notes": "Validate zone-redundant HA directly in-region before committing the target design."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "azure-cosmos-db",
+      "display_name": "Azure Cosmos DB",
+      "family": "databases",
+      "summary": "Globally distributed NoSQL platform where regional presence and resiliency posture matter more than raw provider feature names.",
+      "aliases": [
+        "cosmos",
+        "cosmos db",
+        "azure cosmos db"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.documentdb",
+          "resource_types": [
+            "databaseaccounts",
+            "mongoclusters",
+            "cassandraclusters"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Zone support depends on API and account configuration."
+      },
+      "capabilities": [
+        {
+          "key": "multi_region_writes",
+          "label": "Multi-region writes",
+          "category": "distribution",
+          "importance": "high",
+          "notes": "Often part of migration and resiliency decisions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "autoscale",
+          "label": "Autoscale throughput",
+          "category": "scaling",
+          "importance": "medium",
+          "notes": "Useful for bursty traffic patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-data-factory",
+      "display_name": "Azure Data Factory",
+      "family": "analytics",
+      "summary": "Managed orchestration service where managed virtual network, integration runtime patterns, and zone posture are more relevant than generic provider metadata.",
+      "aliases": [
+        "adf",
+        "data factory",
+        "azure data factory"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.datafactory",
+          "resource_types": [
+            "factories",
+            "integrationruntimes"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Service-level zone support is documented; specific execution paths can still vary."
+      },
+      "capabilities": [
+        {
+          "key": "managed_vnet",
+          "label": "Managed virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important for private data movement.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "mapping_data_flows",
+          "label": "Mapping data flows",
+          "category": "transformation",
+          "importance": "medium",
+          "notes": "Useful when comparing ETL-heavy landing regions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-data-explorer",
+      "display_name": "Azure Data Explorer",
+      "family": "analytics",
+      "summary": "Kusto-based analytics platform where cluster availability and ingestion/query posture are migration-critical.",
+      "aliases": [
+        "adx",
+        "kusto",
+        "azure data explorer"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.kusto",
+          "resource_types": [
+            "clusters"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Availability zone support is documented at the service level."
+      },
+      "capabilities": [
+        {
+          "key": "streaming_ingestion",
+          "label": "Streaming ingestion",
+          "category": "ingestion",
+          "importance": "high",
+          "notes": "Relevant for low-latency telemetry platforms.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "materialized_views",
+          "label": "Materialized views",
+          "category": "optimization",
+          "importance": "medium",
+          "notes": "Common requirement for analytics workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-storage",
+      "display_name": "Azure Storage",
+      "family": "storage",
+      "summary": "Storage account platform spanning blobs, files, queues, tables, and redundancy models with strong region-selection impact.",
+      "aliases": [
+        "storage",
+        "azure storage",
+        "storage accounts",
+        "adls",
+        "adls gen2",
+        "data lake storage gen2"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.storage",
+          "resource_types": [
+            "storageaccounts"
+          ]
+        }
+      ],
+      "pricing": {
+        "serviceNames": [
+          "Storage"
+        ],
+        "serviceFamilies": [
+          "Storage"
+        ],
+        "productNames": [
+          "Azure Data Lake Storage Gen2 Flat Namespace",
+          "Azure Data Lake Storage Gen2 Hierarchical Namespace",
+          "Blob Storage",
+          "Azure Files"
+        ]
+      },
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Zone behavior depends on selected redundancy option and SKU."
+      },
+      "capabilities": [
+        {
+          "key": "zrs",
+          "label": "Zone-redundant replication option",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Key migration signal for storage resiliency.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "premium_blob",
+          "label": "Premium blob storage",
+          "category": "performance",
+          "importance": "medium",
+          "notes": "Useful for latency-sensitive applications.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "premium_files",
+          "label": "Premium Azure Files",
+          "category": "performance",
+          "importance": "medium",
+          "notes": "Important for lift-and-shift file workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "data_lake_gen2",
+          "label": "Data Lake Storage Gen2",
+          "category": "analytics",
+          "importance": "high",
+          "notes": "Important for lakehouse and analytics landing zones.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "sftp",
+          "label": "SFTP endpoint support",
+          "category": "access",
+          "importance": "medium",
+          "notes": "Frequently required for partner and migration integrations.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "nfs_3",
+          "label": "NFS 3.0 support",
+          "category": "access",
+          "importance": "medium",
+          "notes": "Useful for Linux and analytics workloads.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "large_file_shares",
+          "label": "Large file shares",
+          "category": "scale",
+          "importance": "medium",
+          "notes": "Important for enterprise file migration scenarios.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "blob_versioning",
+          "label": "Blob versioning",
+          "category": "data-protection",
+          "importance": "medium",
+          "notes": "Useful for rollback and accidental-delete recovery patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "lifecycle_management",
+          "label": "Lifecycle management",
+          "category": "cost",
+          "importance": "medium",
+          "notes": "Important for tiering and retention automation across blob workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "object_replication",
+          "label": "Object replication",
+          "category": "resiliency",
+          "importance": "medium",
+          "notes": "Useful when application-owned replication patterns matter more than account-wide failover.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "change_feed",
+          "label": "Blob change feed",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful for downstream processing, audit, and event-driven storage workflows.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-virtual-machines",
+      "display_name": "Virtual Machines",
+      "family": "compute",
+      "summary": "Compute service view for VM family and SKU comparisons across regions.",
+      "aliases": [
+        "vm",
+        "vms",
+        "virtual machines",
+        "azure virtual machines"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.compute",
+          "resource_types": [
+            "virtualmachines"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "virtualmachines"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "pricing": {
+        "serviceNames": [
+          "Virtual Machines"
+        ],
+        "serviceFamilies": [
+          "Compute"
+        ],
+        "productNames": [
+          "Virtual Machines"
+        ],
+        "filters": [
+          {
+            "service_name": "Virtual Machines",
+            "price_type": "Consumption"
+          },
+          {
+            "service_name": "Virtual Machines",
+            "price_type": "Reservation"
+          }
+        ]
+      },
+      "zone_support": {
+        "default": "zonal",
+        "notes": "VM availability and zone posture depend on size family and regional capacity."
+      },
+      "capabilities": [
+        {
+          "key": "availability_zones",
+          "label": "Availability zones",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Zone posture still depends on the selected VM family and size.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "ephemeral_os_disk",
+          "label": "Ephemeral OS disk support",
+          "category": "performance",
+          "importance": "medium",
+          "notes": "Useful for stateless or rebuildable workloads.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "proximity_placement_groups",
+          "label": "Proximity placement groups",
+          "category": "latency",
+          "importance": "medium",
+          "notes": "Important when low-latency co-location is part of the design.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "managed-disks",
+      "display_name": "Managed Disks",
+      "family": "storage",
+      "summary": "Managed disk service view for disk tier and SKU comparisons across regions.",
+      "aliases": [
+        "managed disks",
+        "azure managed disks",
+        "premium ssd v2",
+        "ultra disks"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.compute",
+          "resource_types": [
+            "disks"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "disks"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "pricing": {
+        "serviceNames": [
+          "Storage"
+        ],
+        "serviceFamilies": [
+          "Storage"
+        ],
+        "productNames": [
+          "Managed Disks",
+          "Premium SSD v2",
+          "Ultra Disks"
+        ],
+        "filters": [
+          {
+            "service_family": "Storage",
+            "service_name": "Storage",
+            "product_name_contains": "Managed Disks"
+          },
+          {
+            "service_family": "Storage",
+            "service_name": "Storage",
+            "product_name_contains": "Premium SSD v2"
+          },
+          {
+            "service_family": "Storage",
+            "service_name": "Storage",
+            "product_name_contains": "Ultra Disks"
+          }
+        ]
+      },
+      "zone_support": {
+        "default": "regional",
+        "notes": "Disk availability and redundancy posture depend on tier and SKU."
+      },
+      "capabilities": [
+        {
+          "key": "premium_ssd_v2",
+          "label": "Premium SSD v2",
+          "category": "performance",
+          "importance": "high",
+          "notes": "Important when modern premium disk tiers are required.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "ultra_disks",
+          "label": "Ultra Disks",
+          "category": "performance",
+          "importance": "high",
+          "notes": "Validate region support before performance-sensitive migrations.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "disk_encryption_sets",
+          "label": "Disk Encryption Sets",
+          "category": "security",
+          "importance": "medium",
+          "notes": "Often required for managed encryption boundary control.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-aks",
+      "display_name": "Azure Kubernetes Service (AKS)",
+      "family": "containers",
+      "summary": "Managed Kubernetes platform where zone placement, node pool availability, and control-plane maturity matter more than generic provider presence.",
+      "aliases": [
+        "aks",
+        "azure kubernetes service"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.containerservice",
+          "resource_types": [
+            "managedclusters",
+            "agentpools"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "both",
+        "notes": "AKS supports both zonal and zone-redundant patterns depending on architecture choices."
+      },
+      "capabilities": [
+        {
+          "key": "availability_zones",
+          "label": "Multi-zone node pool placement",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Key for resilient cluster architecture.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "private_cluster",
+          "label": "Private cluster",
+          "category": "security",
+          "importance": "high",
+          "notes": "Frequently required in enterprise landing zones.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "workload_identity",
+          "label": "Workload identity support",
+          "category": "security",
+          "importance": "high",
+          "notes": "Relevant for reducing secret usage in-cluster.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "cni_overlay",
+          "label": "Azure CNI overlay networking",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Useful when IP planning differs by region.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "automatic_mode",
+          "label": "AKS Automatic operating mode",
+          "category": "operations",
+          "importance": "high",
+          "notes": "Useful when teams want production defaults, managed node handling, and simplified day-2 operations.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "node_autoprovisioning",
+          "label": "Node autoprovisioning",
+          "category": "scaling",
+          "importance": "high",
+          "notes": "Important when the target region must support dynamic node-family selection as workloads change.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "auto_upgrade",
+          "label": "Automatic cluster upgrades",
+          "category": "operations",
+          "importance": "high",
+          "notes": "Important for keeping clusters in support without manual version choreography.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "planned_maintenance",
+          "label": "Planned maintenance windows",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful when upgrade timing must align with workload maintenance periods.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "keda",
+          "label": "KEDA event-driven scaling",
+          "category": "scaling",
+          "importance": "medium",
+          "notes": "Useful for queue, event, and burst-driven workloads with sharp scaling profiles.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "gitops",
+          "label": "GitOps and config management",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Important when platform teams require declarative cluster delivery and drift control.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-container-registry",
+      "display_name": "Azure Container Registry",
+      "family": "containers",
+      "summary": "Managed registry service where geo-replication, private access, and premium posture influence region targeting.",
+      "aliases": [
+        "acr",
+        "container registry",
+        "azure container registry"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.containerregistry",
+          "resource_types": [
+            "registries"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Availability zone support is documented at the service level."
+      },
+      "capabilities": [
+        {
+          "key": "geo_replication",
+          "label": "Geo-replication",
+          "category": "distribution",
+          "importance": "high",
+          "notes": "Critical for cross-region container delivery.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_link",
+          "label": "Private Link",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Common requirement for restricted environments.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-container-apps",
+      "display_name": "Azure Container Apps",
+      "family": "containers",
+      "summary": "Serverless container platform where environment availability and ingress/network options drive fit-for-region decisions.",
+      "aliases": [
+        "container apps",
+        "azure container apps"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.app",
+          "resource_types": [
+            "containerapps",
+            "managedenvironments"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Service support is documented, but environment capabilities still depend on region maturity."
+      },
+      "capabilities": [
+        {
+          "key": "zone_redundant_environment",
+          "label": "Zone-redundant environment",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Requires a zone-supported region and a VNet-backed managed environment.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "workload_profiles",
+          "label": "Workload profiles",
+          "category": "compute",
+          "importance": "high",
+          "notes": "Important for balancing serverless elasticity against dedicated compute requirements.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vnet_integration",
+          "label": "Virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Common requirement for private service connectivity and for zone-redundant environment designs.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important when container apps must stay reachable only from private address space.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "revisions",
+          "label": "Immutable revisions",
+          "category": "operations",
+          "importance": "high",
+          "notes": "Useful when release management requires safe rollout and rollback snapshots.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "traffic_splitting",
+          "label": "Revision traffic splitting",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful for blue-green rollout and incremental traffic shaping.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "dapr",
+          "label": "Dapr sidecar integration",
+          "category": "application-platform",
+          "importance": "medium",
+          "notes": "Useful for service invocation, state, and pub/sub patterns in microservice estates.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "jobs",
+          "label": "Container Apps jobs",
+          "category": "compute",
+          "importance": "medium",
+          "notes": "Useful for scheduled, event-driven, or ad hoc background processing.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "scale_to_zero",
+          "label": "Scale to zero",
+          "category": "cost",
+          "importance": "medium",
+          "notes": "Important for event-driven apps where idle cost posture matters.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "internal_ingress",
+          "label": "Internal ingress and service discovery",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Useful when app-to-app traffic should stay private within the environment boundary.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "functions_hosting",
+          "label": "Azure Functions hosting on Container Apps",
+          "category": "application-platform",
+          "importance": "medium",
+          "notes": "Useful when teams want Functions triggers and bindings with Container Apps environment features.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-container-instances",
+      "display_name": "Azure Container Instances",
+      "family": "containers",
+      "summary": "Instant container execution service useful for burst workloads, often compared on private networking and zone posture.",
+      "aliases": [
+        "aci",
+        "container instances",
+        "azure container instances"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.containerinstance",
+          "resource_types": [
+            "containergroups"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Service support documentation marks zone support as zone-redundant."
+      },
+      "capabilities": [
+        {
+          "key": "virtual_network",
+          "label": "Virtual network deployment",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Often a go/no-go criterion.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "confidential_containers",
+          "label": "Confidential container options",
+          "category": "security",
+          "importance": "medium",
+          "notes": "Capability maturity can vary by region and SKU.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-app-service-platform",
+      "display_name": "Azure App Service Platform",
+      "family": "app-services",
+      "summary": "Shared fallback for Microsoft.Web provider-level comparisons when the SKU payload does not distinguish App Service plans from Functions plans.",
+      "aliases": [
+        "microsoft web",
+        "app service platform"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.web",
+          "resource_types": [
+            "sites",
+            "serverfarms",
+            "functionapps"
+          ],
+          "match_hints": {
+            "prefer_when_no_skus": true,
+            "shared_provider_fallback": true,
+            "resource_type_contains": [
+              "sites",
+              "serverfarms",
+              "functionapps"
+            ]
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Use this shared view only when provider-level output is too coarse to separate App Service from Functions."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoint and private ingress patterns",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Validate exact support by hosting plan when network isolation is required.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vnet_integration",
+          "label": "Virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important across both App Service and Functions migration scenarios.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "deployment_and_release",
+          "label": "Deployment slots or controlled release features",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Validate exact rollout features by hosting model.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "elastic_compute_models",
+          "label": "Elastic and event-driven compute models",
+          "category": "compute",
+          "importance": "medium",
+          "notes": "Differentiate further by App Service plan or Functions plan when exact hosting choice matters.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Shared fallback service for coarse Microsoft.Web provider comparisons."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-app-service",
+      "display_name": "Azure App Service",
+      "family": "app-services",
+      "summary": "PaaS web hosting platform where networking, scale units, and resiliency features matter more than raw provider enumeration.",
+      "aliases": [
+        "app service",
+        "azure app service"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.web",
+          "resource_types": [
+            "sites",
+            "serverfarms"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "serverfarms"
+            ],
+            "sku_name_contains": [
+              "p1",
+              "p2",
+              "p3",
+              "s1",
+              "s2",
+              "s3",
+              "b1",
+              "b2",
+              "b3",
+              "i1",
+              "i2"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Service support is documented; exact app plan behavior still depends on SKU and deployment shape."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important for secure ingress designs.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "deployment_slots",
+          "label": "Deployment slots",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Often required for safe cutovers.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vnet_integration",
+          "label": "Virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important for private outbound access patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "app_service_environment",
+          "label": "App Service Environment support",
+          "category": "isolation",
+          "importance": "medium",
+          "notes": "Important when dedicated isolated hosting is required.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_identity",
+          "label": "Managed identity",
+          "category": "security",
+          "importance": "high",
+          "notes": "Important when app-to-service authentication must avoid embedded secrets.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "entra_auth",
+          "label": "Built-in Microsoft Entra authentication",
+          "category": "security",
+          "importance": "medium",
+          "notes": "Useful when access control and token handling should be delegated to the platform.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "backup_restore",
+          "label": "Backup and restore",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful for operational recovery and slot-based restore patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "autoscale",
+          "label": "Autoscale",
+          "category": "scaling",
+          "importance": "medium",
+          "notes": "Important when steady-state traffic differs sharply from peak demand.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "health_check",
+          "label": "Health check",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful for safer instance rotation and degraded-node detection.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "custom_domains_tls",
+          "label": "Custom domains and TLS",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Important for production web workloads that need first-party domain and certificate control.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate App Service Environment and private networking requirements against the selected plan family."
+        },
+        "centralus": {
+          "notes": "Check plan-family parity and networking prerequisites before targeting this region for web workloads."
+        },
+        "swedencentral": {
+          "notes": "Treat isolated hosting and advanced networking as explicit validation items for final migration design."
+        }
+      }
+    },
+    {
+      "service_key": "azure-functions",
+      "display_name": "Azure Functions",
+      "family": "app-services",
+      "summary": "Event-driven compute platform where plan choice, networking, and scale semantics matter for region planning.",
+      "aliases": [
+        "functions",
+        "azure functions"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.web",
+          "resource_types": [
+            "functionapps",
+            "sites"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "functionapps"
+            ],
+            "sku_name_contains": [
+              "y1",
+              "ep",
+              "fc",
+              "flex consumption"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Availability zone support is documented at the service level, but plans still differ."
+      },
+      "capabilities": [
+        {
+          "key": "premium_plan",
+          "label": "Premium plan",
+          "category": "compute",
+          "importance": "high",
+          "notes": "Important for VNet integration and cold-start posture.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "durable_functions",
+          "label": "Durable Functions",
+          "category": "application-platform",
+          "importance": "medium",
+          "notes": "Common for orchestration-heavy workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vnet_integration",
+          "label": "Virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Often required for private data access from functions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "flex_consumption",
+          "label": "Elastic or flexible consumption options",
+          "category": "cost",
+          "importance": "medium",
+          "notes": "Relevant for cost-sensitive event-driven workloads.",
+          "availability": {
+            "default": "unknown",
+            "regions": {}
+          }
+        },
+        {
+          "key": "deployment_slots",
+          "label": "Deployment slots",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful when release flow requires warming and swapping rather than in-place deploys.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_identity",
+          "label": "Managed identity",
+          "category": "security",
+          "importance": "high",
+          "notes": "Important when Functions must call Azure services without stored secrets.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Useful when function entry points must stay private and portal access is intentionally constrained.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "event_driven_scaling",
+          "label": "Event-driven scaling",
+          "category": "scaling",
+          "importance": "high",
+          "notes": "Core operator concern for queue, timer, and message-driven functions estates.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "container_apps_hosting",
+          "label": "Container Apps hosting option",
+          "category": "application-platform",
+          "importance": "medium",
+          "notes": "Useful when the workload needs Functions triggers plus Container Apps networking and revision features.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate the exact Functions hosting model needed for networking, cold-start, and scaling requirements."
+        },
+        "centralus": {
+          "notes": "Verify premium and elastic hosting options against your networking and startup requirements."
+        },
+        "swedencentral": {
+          "notes": "Treat flexible consumption and advanced networking as validation items before finalizing region migration plans.",
+          "capabilities": {
+            "flex_consumption": {
+              "status": "unknown",
+              "notes": "Validate elastic or flexible consumption plan support directly in-region before migration cutover."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "azure-sql-managed-instance",
+      "display_name": "Azure SQL Managed Instance",
+      "family": "databases",
+      "summary": "Managed SQL Server-compatible platform where failover groups, networking, and maintenance windows often determine target region fit.",
+      "aliases": [
+        "sql managed instance",
+        "managed instance",
+        "azure sql mi"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.sql",
+          "resource_types": [
+            "managedinstances"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "managedinstances"
+            ],
+            "sku_name_contains": [
+              "managed instance",
+              "managedinstance"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Service-level zone support is documented, though feature configuration remains tier- and architecture-sensitive."
+      },
+      "capabilities": [
+        {
+          "key": "instance_failover_groups",
+          "label": "Failover groups",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important for multi-region database continuity.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "link_feature",
+          "label": "SQL Server link capability",
+          "category": "migration",
+          "importance": "medium",
+          "notes": "Useful for staged migrations from SQL Server.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private access patterns",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Networking posture is often a go/no-go criterion for MI landing regions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "maintenance_window",
+          "label": "Maintenance window scheduling",
+          "category": "operations",
+          "importance": "high",
+          "notes": "Useful when planned platform maintenance must align with business maintenance windows.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone redundancy",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important when zonal outage resilience is required within the target region.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          },
+          "requires_zone_support": true
+        },
+        {
+          "key": "instance_pools",
+          "label": "Instance pools",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Useful when operators want faster deployment and shared management boundaries for multiple instances.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "license_free_dr",
+          "label": "License-free disaster recovery replica",
+          "category": "cost",
+          "importance": "medium",
+          "notes": "Useful when business continuity posture must be balanced against reserved compute cost.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "geo_restore",
+          "label": "Geo-restore",
+          "category": "resiliency",
+          "importance": "medium",
+          "notes": "Important fallback when secondary region continuity relies on backup-based recovery rather than continuous failover.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "service_tiers",
+          "label": "General Purpose and Business Critical tiers",
+          "category": "compute",
+          "importance": "medium",
+          "notes": "Important because region fit often depends on latency, IOPS, and maintenance characteristics of the chosen tier.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate networking and failover group assumptions against live managed instance support in-region."
+        },
+        "centralus": {
+          "notes": "Check failover, maintenance, and private access assumptions before selecting this as a target region."
+        }
+      }
+    },
+    {
+      "service_key": "azure-managed-redis",
+      "display_name": "Azure Cache for Redis / Managed Redis",
+      "family": "databases",
+      "summary": "Managed caching platform where zone posture, clustering, and network isolation are key regional planning factors.",
+      "aliases": [
+        "redis",
+        "azure cache for redis",
+        "managed redis"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.cache",
+          "resource_types": [
+            "redis",
+            "redisenterprise"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "both",
+        "notes": "Availability zone support is documented for the service family, with tier-specific behavior differences."
+      },
+      "capabilities": [
+        {
+          "key": "active_geo_replication",
+          "label": "Geo-replication",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important for cross-region cache continuity patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "clustering",
+          "label": "Clustered cache topology",
+          "category": "scale",
+          "importance": "medium",
+          "notes": "Relevant for higher-throughput cache architectures.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_link",
+          "label": "Private Link",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Common requirement in regulated landing zones.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-synapse-analytics",
+      "display_name": "Azure Synapse Analytics",
+      "family": "analytics",
+      "summary": "Unified analytics service where managed networking, SQL pool choices, and Spark availability are often more relevant than raw provider status.",
+      "aliases": [
+        "synapse",
+        "azure synapse",
+        "azure synapse analytics"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.synapse",
+          "resource_types": [
+            "workspaces",
+            "sqlpools",
+            "bigdatapools",
+            "kustopools"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "unknown",
+        "notes": "Use curated service guidance because public provider metadata is much less descriptive than workload-level architecture concerns."
+      },
+      "capabilities": [
+        {
+          "key": "dedicated_sql_pools",
+          "label": "Dedicated SQL pools",
+          "category": "compute",
+          "importance": "high",
+          "notes": "Key for data warehouse migration planning.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "data_explorer_pools",
+          "label": "Data Explorer pools",
+          "category": "compute",
+          "importance": "high",
+          "notes": "Important when Synapse is being used for Kusto-backed analytics and log exploration workloads.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_vnet",
+          "label": "Managed virtual network",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Common requirement for private data estate connectivity.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-docs",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-service-by-category",
+          "last_verified": "2026-04-13",
+          "notes": "Service-category reference; feature comparison is curated due limited public feature APIs."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Common Synapse source/target region. Validate actual pool family and networking prerequisites from live SKU output."
+        },
+        "centralus": {
+          "notes": "Treat dedicated SQL pools and managed networking as explicit validation steps before migration."
+        },
+        "qatarcentral": {
+          "notes": "Recent comparison output showed no Synapse Kusto pool SKUs in this region; treat Data Explorer pool availability as a validation item.",
+          "capabilities": {
+            "data_explorer_pools": {
+              "status": "unavailable",
+              "notes": "Treat Synapse Data Explorer pools as unavailable until live SKU output confirms Kusto pool support in this region."
+            }
+          }
+        },
+        "swedencentral": {
+          "notes": "Managed networking and dedicated SQL pool posture should be validated directly in-region.",
+          "capabilities": {
+            "managed_vnet": {
+              "status": "unknown",
+              "notes": "Validate managed virtual network behavior directly in the target region before migration commitment."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "azure-databricks",
+      "display_name": "Azure Databricks",
+      "family": "analytics",
+      "summary": "Managed lakehouse platform where private networking, SQL workload maturity, and governance features often shape region choice.",
+      "aliases": [
+        "databricks",
+        "azure databricks"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.databricks",
+          "resource_types": [
+            "workspaces"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "The availability-zones support matrix lists Azure Databricks with zonal service support."
+      },
+      "capabilities": [
+        {
+          "key": "private_link",
+          "label": "Private Link and private connectivity",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important for controlled data-plane connectivity.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "unity_catalog",
+          "label": "Unity Catalog governance",
+          "category": "governance",
+          "importance": "high",
+          "notes": "Often a core lakehouse platform requirement.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "sql_warehouses",
+          "label": "SQL warehouses",
+          "category": "query",
+          "importance": "medium",
+          "notes": "Relevant when consolidating BI and ad hoc analytics patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate private connectivity and workspace governance requirements against the exact workspace shape you need."
+        },
+        "centralus": {
+          "notes": "Check SQL warehouse and governance prerequisites before selecting the region for lakehouse consolidation."
+        },
+        "swedencentral": {
+          "notes": "Treat SQL warehouse and private connectivity posture as validation items before migration planning is finalized.",
+          "capabilities": {
+            "sql_warehouses": {
+              "status": "unknown",
+              "notes": "Validate SQL warehouse support directly in-region before committing the target design."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "microsoft-fabric",
+      "display_name": "Microsoft Fabric",
+      "family": "analytics",
+      "summary": "Unified analytics SaaS/PaaS platform where capacity availability, OneLake integration, and workload type support are the primary regional concerns.",
+      "aliases": [
+        "fabric",
+        "microsoft fabric"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.fabric",
+          "resource_types": [
+            "capacities"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "The availability-zones support matrix lists Microsoft Fabric with zonal support."
+      },
+      "capabilities": [
+        {
+          "key": "lakehouse",
+          "label": "Lakehouse workload support",
+          "category": "analytics",
+          "importance": "high",
+          "notes": "Important when region choice is driven by modern analytics consolidation.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "warehouses",
+          "label": "Warehouse workload support",
+          "category": "analytics",
+          "importance": "high",
+          "notes": "Relevant for replacing standalone analytical warehouses.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "onelake",
+          "label": "OneLake integration",
+          "category": "storage",
+          "importance": "medium",
+          "notes": "Frequently central to data platform region strategy.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate Fabric capacity planning and workload placement against the exact capacity shape you need."
+        },
+        "centralus": {
+          "notes": "Check warehouse and lakehouse workload assumptions before selecting the region for Fabric capacity placement."
+        },
+        "swedencentral": {
+          "notes": "Treat Fabric capacity and workload-shape assumptions as explicit validation items for this target region."
+        }
+      }
+    },
+    {
+      "service_key": "azure-analysis-services",
+      "display_name": "Azure Analysis Services",
+      "family": "analytics",
+      "summary": "Managed semantic model platform where scale-out, backup posture, and migration readiness shape region selection.",
+      "aliases": [
+        "analysis services",
+        "azure analysis services"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.analysisservices",
+          "resource_types": [
+            "servers"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "unknown",
+        "notes": "Public feature and zone semantics are less explicit than for newer analytics services."
+      },
+      "capabilities": [
+        {
+          "key": "query_scale_out",
+          "label": "Query scale-out",
+          "category": "performance",
+          "importance": "high",
+          "notes": "Important for large BI model deployments.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "backup_restore",
+          "label": "Backup and restore",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Frequently part of migration and DR planning.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-docs",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-service-by-category",
+          "last_verified": "2026-04-13",
+          "notes": "Service-category reference; capability comparison is curated."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-netapp-files",
+      "display_name": "Azure NetApp Files",
+      "family": "storage",
+      "summary": "Enterprise file storage platform where protocol support, replication, and performance tiers strongly influence regional fit.",
+      "aliases": [
+        "netapp",
+        "azure netapp files"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.netapp",
+          "resource_types": [
+            "netappaccounts",
+            "capacitypools",
+            "volumes"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "The availability-zones support matrix lists Azure NetApp Files with zone-redundant support."
+      },
+      "capabilities": [
+        {
+          "key": "nfs_smb",
+          "label": "NFS and SMB protocols",
+          "category": "access",
+          "importance": "high",
+          "notes": "Important for enterprise NAS migrations.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "cross_region_replication",
+          "label": "Cross-region replication",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Often a deciding factor for business continuity patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "snapshot_policies",
+          "label": "Snapshot policies",
+          "category": "operations",
+          "importance": "medium",
+          "notes": "Relevant for enterprise backup and restore workflows.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-api-management",
+      "display_name": "Azure API Management",
+      "family": "app-services",
+      "summary": "Managed API gateway platform where networking mode, self-hosted gateway, and resiliency posture commonly drive regional decisions.",
+      "aliases": [
+        "api management",
+        "apim",
+        "azure api management"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.apimanagement",
+          "resource_types": [
+            "service"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "both",
+        "notes": "The availability-zones support matrix lists Azure API Management with both zonal and zone-redundant support."
+      },
+      "capabilities": [
+        {
+          "key": "internal_vnet",
+          "label": "Internal virtual network mode",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Common requirement for private API estates.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "self_hosted_gateway",
+          "label": "Self-hosted gateway",
+          "category": "hybrid",
+          "importance": "medium",
+          "notes": "Relevant for hybrid and edge API topologies.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "multi_region",
+          "label": "Multi-region deployment",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important when comparing active/active API edge patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-app-configuration",
+      "display_name": "Azure App Configuration",
+      "family": "app-services",
+      "summary": "Managed configuration store where replication, private access, and consistency posture shape app-platform region planning.",
+      "aliases": [
+        "app configuration",
+        "azure app configuration"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.appconfiguration",
+          "resource_types": [
+            "configurationstores"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "The availability-zones support matrix lists Azure App Configuration with zonal support."
+      },
+      "capabilities": [
+        {
+          "key": "geo_replication",
+          "label": "Geo-replication",
+          "category": "resiliency",
+          "importance": "high",
+          "notes": "Important for multi-region configuration resiliency.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_link",
+          "label": "Private Link",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Frequently required in private application estates.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "key_vault_references",
+          "label": "Key Vault references",
+          "category": "security",
+          "importance": "medium",
+          "notes": "Useful for centralized config and secret consumption patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-logic-apps",
+      "display_name": "Azure Logic Apps",
+      "family": "app-services",
+      "summary": "Workflow orchestration platform where hosting model, networking, and connector reachability are key region-selection concerns.",
+      "aliases": [
+        "logic apps",
+        "azure logic apps"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.logic",
+          "resource_types": [
+            "workflows",
+            "integrationserviceenvironments"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "The availability-zones support matrix lists Azure Logic Apps with zonal support."
+      },
+      "capabilities": [
+        {
+          "key": "standard_workflows",
+          "label": "Standard hosting model",
+          "category": "hosting",
+          "importance": "high",
+          "notes": "Important when comparing dedicated versus multitenant workflow patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vnet_integration",
+          "label": "Virtual network integration",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Often necessary for private connector and hybrid patterns.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "medium",
+          "notes": "Useful when isolating workflow entry points.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-learn",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support",
+          "last_verified": "2026-04-13",
+          "notes": "Zone-support reference."
+        }
+      ]
+    },
+    {
+      "service_key": "azure-spring-apps",
+      "display_name": "Azure Spring Apps",
+      "family": "app-services",
+      "summary": "Managed Spring platform where networking, build/runtime separation, and enterprise isolation features often drive regional choice.",
+      "aliases": [
+        "spring apps",
+        "azure spring apps",
+        "app platform"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.appplatform",
+          "resource_types": [
+            "spring",
+            "gateways"
+          ]
+        }
+      ],
+      "zone_support": {
+        "default": "unknown",
+        "notes": "Public service feature guidance is stronger than generic provider metadata for this platform."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "notes": "Important for private app platform deployments.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "build_service",
+          "label": "Build service and app lifecycle tooling",
+          "category": "operations",
+          "importance": "high",
+          "notes": "Useful for platform engineering workflows and one of the first capabilities to verify in newer regions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "source_type": "microsoft-docs",
+          "source_url": "https://learn.microsoft.com/en-us/azure/reliability/availability-service-by-category",
+          "last_verified": "2026-04-13",
+          "notes": "Service-category reference; platform capability comparison is curated."
+        }
+      ],
+      "regional_overrides": {
+        "eastus": {
+          "notes": "Validate build service, private endpoints, and platform engineering workflow assumptions against live service readiness."
+        },
+        "centralus": {
+          "notes": "Check private networking and build-service requirements before using this region as a migration target."
+        },
+        "swedencentral": {
+          "notes": "Treat build-service maturity and private networking as explicit validation items before selecting this region.",
+          "capabilities": {
+            "build_service": {
+              "status": "unknown",
+              "notes": "Validate build-service support directly in the region before finalizing migration plans."
+            }
+          }
+        }
+      }
+    },
+    {
+      "service_key": "azure-key-vault",
+      "display_name": "Azure Key Vault",
+      "family": "security",
+      "summary": "Managed secrets, keys, and certificate management with HSM-backed options.",
+      "aliases": [
+        "key vault",
+        "azure key vault",
+        "keyvault"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.keyvault",
+          "resource_types": [
+            "vaults",
+            "managedHSMs"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "vaults"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Key Vault is zone-redundant by default in regions with AZs."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_hsm",
+          "label": "Managed HSM",
+          "category": "security",
+          "importance": "high",
+          "notes": "HSM-backed key management; not available in all regions.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "soft_delete",
+          "label": "Soft delete and purge protection",
+          "category": "resiliency",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "rbac_authorization",
+          "label": "RBAC authorization",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-cognitive-services",
+      "display_name": "Azure AI Services",
+      "family": "ai",
+      "summary": "Managed AI and cognitive services including OpenAI, Speech, Vision, Language, and more.",
+      "aliases": [
+        "cognitive services",
+        "azure ai",
+        "azure openai",
+        "openai"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.cognitiveservices",
+          "resource_types": [
+            "accounts",
+            "commitmentPlans"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "accounts"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Zone-redundant by default where AZs are available; model availability varies by region."
+      },
+      "capabilities": [
+        {
+          "key": "openai_models",
+          "label": "OpenAI model deployments (GPT-4, etc.)",
+          "category": "ai",
+          "importance": "high",
+          "notes": "Model availability varies significantly by region.",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "content_safety",
+          "label": "Content safety filters",
+          "category": "ai",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_identity",
+          "label": "Managed identity authentication",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-machine-learning",
+      "display_name": "Azure Machine Learning",
+      "family": "ai",
+      "summary": "End-to-end machine learning platform for training, deploying, and managing ML models.",
+      "aliases": [
+        "machine learning",
+        "azure ml",
+        "aml"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.machinelearningservices",
+          "resource_types": [
+            "workspaces"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "workspaces"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Compute instances are zonal; workspace metadata is regional."
+      },
+      "capabilities": [
+        {
+          "key": "managed_compute",
+          "label": "Managed compute instances and clusters",
+          "category": "compute",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "managed_endpoints",
+          "label": "Managed online endpoints",
+          "category": "compute",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-event-hubs",
+      "display_name": "Azure Event Hubs",
+      "family": "integration",
+      "summary": "Managed event streaming platform for big data pipelines and event-driven architectures.",
+      "aliases": [
+        "event hubs",
+        "azure event hubs",
+        "eventhub"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.eventhub",
+          "resource_types": [
+            "namespaces",
+            "clusters"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "namespaces"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Premium and Dedicated tiers support zone-redundancy."
+      },
+      "capabilities": [
+        {
+          "key": "kafka_protocol",
+          "label": "Kafka protocol support",
+          "category": "integration",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "schema_registry",
+          "label": "Schema Registry",
+          "category": "integration",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "dedicated_clusters",
+          "label": "Dedicated clusters",
+          "category": "scale",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant namespaces",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-service-bus",
+      "display_name": "Azure Service Bus",
+      "family": "integration",
+      "summary": "Enterprise messaging service with queues, topics, and subscriptions.",
+      "aliases": [
+        "service bus",
+        "azure service bus"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.servicebus",
+          "resource_types": [
+            "namespaces"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "namespaces"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Premium tier supports zone-redundancy."
+      },
+      "capabilities": [
+        {
+          "key": "premium_messaging",
+          "label": "Premium messaging tier",
+          "category": "scale",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "geo_disaster_recovery",
+          "label": "Geo-disaster recovery pairing",
+          "category": "resiliency",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant namespaces",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-event-grid",
+      "display_name": "Azure Event Grid",
+      "family": "integration",
+      "summary": "Serverless event routing service for event-driven architectures.",
+      "aliases": [
+        "event grid",
+        "azure event grid"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.eventgrid",
+          "resource_types": [
+            "topics",
+            "domains",
+            "namespaces"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "topics",
+              "domains"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Automatically zone-redundant in regions with AZs."
+      },
+      "capabilities": [
+        {
+          "key": "custom_topics",
+          "label": "Custom topics",
+          "category": "integration",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "namespace_topics",
+          "label": "Namespace topics (pull delivery)",
+          "category": "integration",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-load-balancer",
+      "display_name": "Azure Load Balancer",
+      "family": "networking",
+      "summary": "Layer 4 load balancing for VMs and VMSS with Standard and Basic tiers.",
+      "aliases": [
+        "load balancer",
+        "azure load balancer"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "loadBalancers"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "loadBalancers"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Standard Load Balancer is zone-redundant by default."
+      },
+      "capabilities": [
+        {
+          "key": "standard_sku",
+          "label": "Standard SKU",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "cross_region_lb",
+          "label": "Cross-region load balancing",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant frontend",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-application-gateway",
+      "display_name": "Azure Application Gateway",
+      "family": "networking",
+      "summary": "Layer 7 load balancer with WAF, SSL termination, and URL-based routing.",
+      "aliases": [
+        "application gateway",
+        "app gateway",
+        "appgw"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "applicationGateways"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "applicationGateways"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "V2 SKU supports zone-redundant deployments."
+      },
+      "capabilities": [
+        {
+          "key": "waf_v2",
+          "label": "WAF v2 policy",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_link",
+          "label": "Private Link support",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant deployment",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-firewall",
+      "display_name": "Azure Firewall",
+      "family": "networking",
+      "summary": "Cloud-native network firewall with threat intelligence and IDPS.",
+      "aliases": [
+        "azure firewall",
+        "firewall"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "azureFirewalls",
+            "firewallPolicies"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "azureFirewalls"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Zone-redundant by default when deployed across availability zones."
+      },
+      "capabilities": [
+        {
+          "key": "premium_tier",
+          "label": "Premium tier (IDPS, TLS inspection)",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "forced_tunneling",
+          "label": "Forced tunneling",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant deployment",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-vpn-gateway",
+      "display_name": "Azure VPN Gateway",
+      "family": "networking",
+      "summary": "Site-to-site, point-to-site, and VNet-to-VNet VPN connectivity.",
+      "aliases": [
+        "vpn gateway",
+        "azure vpn"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "virtualNetworkGateways",
+            "vpnGateways"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "virtualNetworkGateways",
+              "vpnGateways"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "AZ SKU variants provide zone-redundant deployment."
+      },
+      "capabilities": [
+        {
+          "key": "zone_redundant_sku",
+          "label": "Zone-redundant gateway SKUs (VpnGw1AZ, etc.)",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "active_active",
+          "label": "Active-active configuration",
+          "category": "resiliency",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-front-door",
+      "display_name": "Azure Front Door",
+      "family": "networking",
+      "summary": "Global load balancer and CDN with WAF and SSL offloading.",
+      "aliases": [
+        "front door",
+        "azure front door",
+        "afd"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.cdn",
+          "resource_types": [
+            "profiles"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "profiles"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Global service; not region-scoped for zone support."
+      },
+      "capabilities": [
+        {
+          "key": "waf_policy",
+          "label": "WAF policy",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_link_origins",
+          "label": "Private Link origins",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "rules_engine",
+          "label": "Rules engine",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-dns",
+      "display_name": "Azure DNS",
+      "family": "networking",
+      "summary": "Managed DNS hosting and private DNS zones.",
+      "aliases": [
+        "azure dns",
+        "dns"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "dnsZones",
+            "privateDnsZones"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "dnsZones",
+              "privateDnsZones"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Global anycast service; region is for metadata."
+      },
+      "capabilities": [
+        {
+          "key": "private_dns_zones",
+          "label": "Private DNS zones",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "dns_private_resolver",
+          "label": "DNS Private Resolver",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-nat-gateway",
+      "display_name": "Azure NAT Gateway",
+      "family": "networking",
+      "summary": "Managed outbound NAT for virtual networks.",
+      "aliases": [
+        "nat gateway",
+        "azure nat gateway"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "natGateways"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "natGateways"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Can be deployed zonally; zone-redundancy depends on configuration."
+      },
+      "capabilities": [
+        {
+          "key": "zone_redundancy",
+          "label": "Zone isolation",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-virtual-network",
+      "display_name": "Azure Virtual Network",
+      "family": "networking",
+      "summary": "Foundation networking service for private network isolation.",
+      "aliases": [
+        "virtual network",
+        "vnet",
+        "azure vnet"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "virtualNetworks",
+            "publicIPAddresses",
+            "networkSecurityGroups",
+            "networkInterfaces"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "virtualNetworks"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "VNets span all availability zones in a region."
+      },
+      "capabilities": [
+        {
+          "key": "vnet_peering",
+          "label": "VNet peering",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "service_endpoints",
+          "label": "Service endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-log-analytics",
+      "display_name": "Azure Log Analytics",
+      "family": "monitoring",
+      "summary": "Centralized log collection and KQL query engine for Azure Monitor.",
+      "aliases": [
+        "log analytics",
+        "azure log analytics",
+        "oms"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.operationalinsights",
+          "resource_types": [
+            "workspaces",
+            "clusters"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "workspaces"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Workspaces are zone-redundant in supported regions."
+      },
+      "capabilities": [
+        {
+          "key": "dedicated_clusters",
+          "label": "Dedicated clusters",
+          "category": "scale",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "data_export",
+          "label": "Data export rules",
+          "category": "operations",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "cmk_encryption",
+          "label": "Customer-managed key encryption",
+          "category": "security",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-application-insights",
+      "display_name": "Azure Application Insights",
+      "family": "monitoring",
+      "summary": "Application performance monitoring and diagnostics.",
+      "aliases": [
+        "application insights",
+        "app insights",
+        "appinsights"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.insights",
+          "resource_types": [
+            "components",
+            "webtests"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "components"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Backed by Log Analytics workspace; zone posture follows workspace."
+      },
+      "capabilities": [
+        {
+          "key": "workspace_based",
+          "label": "Workspace-based mode",
+          "category": "operations",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "profiler",
+          "label": "Profiler",
+          "category": "operations",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-batch",
+      "display_name": "Azure Batch",
+      "family": "compute",
+      "summary": "Managed HPC and batch processing service.",
+      "aliases": [
+        "batch",
+        "azure batch"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.batch",
+          "resource_types": [
+            "batchAccounts"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "batchAccounts"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Pools can target specific availability zones."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zonal pool placement",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-backup",
+      "display_name": "Azure Backup",
+      "family": "management",
+      "summary": "Centralized backup service for VMs, databases, files, and workloads.",
+      "aliases": [
+        "backup",
+        "azure backup"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.recoveryservices",
+          "resource_types": [
+            "vaults"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "vaults"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Recovery Services vaults support ZRS and GRS storage redundancy."
+      },
+      "capabilities": [
+        {
+          "key": "zrs_storage",
+          "label": "ZRS vault storage",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "cross_region_restore",
+          "label": "Cross-region restore",
+          "category": "resiliency",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-site-recovery",
+      "display_name": "Azure Site Recovery",
+      "family": "management",
+      "summary": "Disaster recovery orchestration for VMs and on-premises workloads.",
+      "aliases": [
+        "site recovery",
+        "asr",
+        "azure site recovery"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.recoveryservices",
+          "resource_types": [
+            "vaults"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "vaults"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Cross-region service; vault is regional."
+      },
+      "capabilities": [
+        {
+          "key": "azure_to_azure",
+          "label": "Azure-to-Azure replication",
+          "category": "resiliency",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-signalr-service",
+      "display_name": "Azure SignalR Service",
+      "family": "app-services",
+      "summary": "Managed real-time messaging service for web applications.",
+      "aliases": [
+        "signalr",
+        "azure signalr"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.signalrservice",
+          "resource_types": [
+            "signalR",
+            "webPubSub"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "signalR"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Premium tier is zone-redundant."
+      },
+      "capabilities": [
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-search",
+      "display_name": "Azure AI Search",
+      "family": "ai",
+      "summary": "Managed search-as-a-service with AI enrichment and vector search.",
+      "aliases": [
+        "cognitive search",
+        "azure search",
+        "ai search"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.search",
+          "resource_types": [
+            "searchServices"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "searchServices"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Standard tier and above support zone-redundancy with 3+ replicas."
+      },
+      "capabilities": [
+        {
+          "key": "semantic_search",
+          "label": "Semantic search",
+          "category": "ai",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "vector_search",
+          "label": "Vector search",
+          "category": "ai",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_redundancy",
+          "label": "Zone-redundant replicas",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-iot-hub",
+      "display_name": "Azure IoT Hub",
+      "family": "iot",
+      "summary": "Managed IoT message broker and device management platform.",
+      "aliases": [
+        "iot hub",
+        "azure iot hub"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.devices",
+          "resource_types": [
+            "iotHubs",
+            "provisioningServices"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "iotHubs"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Zone-redundant in regions with availability zones."
+      },
+      "capabilities": [
+        {
+          "key": "device_provisioning",
+          "label": "Device Provisioning Service",
+          "category": "iot",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-automation",
+      "display_name": "Azure Automation",
+      "family": "management",
+      "summary": "Cloud-based automation and configuration management (runbooks, DSC).",
+      "aliases": [
+        "automation",
+        "azure automation"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.automation",
+          "resource_types": [
+            "automationAccounts"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "automationAccounts"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [
+        {
+          "key": "hybrid_runbook_worker",
+          "label": "Hybrid Runbook Worker",
+          "category": "operations",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "update_management",
+          "label": "Update Management",
+          "category": "operations",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-stream-analytics",
+      "display_name": "Azure Stream Analytics",
+      "family": "analytics",
+      "summary": "Real-time stream processing and analytics engine.",
+      "aliases": [
+        "stream analytics",
+        "asa"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.streamanalytics",
+          "resource_types": [
+            "streamingjobs",
+            "clusters"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "streamingjobs"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Dedicated clusters support zone-redundancy."
+      },
+      "capabilities": [
+        {
+          "key": "dedicated_clusters",
+          "label": "Dedicated clusters",
+          "category": "scale",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-purview",
+      "display_name": "Microsoft Purview",
+      "family": "analytics",
+      "summary": "Unified data governance and compliance service.",
+      "aliases": [
+        "purview",
+        "azure purview",
+        "microsoft purview"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.purview",
+          "resource_types": [
+            "accounts"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "accounts"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [
+        {
+          "key": "data_map",
+          "label": "Data Map",
+          "category": "analytics",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-notification-hubs",
+      "display_name": "Azure Notification Hubs",
+      "family": "integration",
+      "summary": "Push notification engine for mobile and web applications.",
+      "aliases": [
+        "notification hubs",
+        "azure notification hubs"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.notificationhubs",
+          "resource_types": [
+            "namespaces",
+            "namespaces/notificationHubs"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "namespaces"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [
+        {
+          "key": "premium_tier",
+          "label": "Premium tier",
+          "category": "scale",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-communication-services",
+      "display_name": "Azure Communication Services",
+      "family": "integration",
+      "summary": "Communication APIs for voice, video, chat, SMS, and email.",
+      "aliases": [
+        "communication services",
+        "acs"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.communication",
+          "resource_types": [
+            "communicationServices"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "communicationServices"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Global resource; region selection affects data residency."
+      },
+      "capabilities": [
+        {
+          "key": "voice_calling",
+          "label": "Voice calling (PSTN)",
+          "category": "integration",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "email",
+          "label": "Email communication",
+          "category": "integration",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-service-fabric",
+      "display_name": "Azure Service Fabric",
+      "family": "containers",
+      "summary": "Microservices platform for stateful and stateless service hosting.",
+      "aliases": [
+        "service fabric",
+        "azure service fabric"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.servicefabric",
+          "resource_types": [
+            "clusters",
+            "managedclusters"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "clusters",
+              "managedclusters"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Managed clusters support zone-spanning node types."
+      },
+      "capabilities": [
+        {
+          "key": "managed_clusters",
+          "label": "Managed clusters",
+          "category": "compute",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "zone_spanning",
+          "label": "Zone-spanning node types",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-red-hat-openshift",
+      "display_name": "Azure Red Hat OpenShift",
+      "family": "containers",
+      "summary": "Managed Red Hat OpenShift clusters on Azure.",
+      "aliases": [
+        "aro",
+        "azure red hat openshift",
+        "openshift"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.redhatopenshift",
+          "resource_types": [
+            "openShiftClusters"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "openShiftClusters"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zonal",
+        "notes": "Worker nodes can be spread across zones."
+      },
+      "capabilities": [
+        {
+          "key": "private_clusters",
+          "label": "Private clusters",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-elastic-san",
+      "display_name": "Azure Elastic SAN",
+      "family": "storage",
+      "summary": "Cloud-native SAN service for block storage volumes.",
+      "aliases": [
+        "elastic san",
+        "azure elastic san"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.elasticsan",
+          "resource_types": [
+            "elasticSans"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "elasticSans"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "Supports LRS and ZRS redundancy options."
+      },
+      "capabilities": [
+        {
+          "key": "zrs_redundancy",
+          "label": "Zone-redundant storage",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-storage-mover",
+      "display_name": "Azure Storage Mover",
+      "family": "storage",
+      "summary": "Managed data migration service for Azure Storage.",
+      "aliases": [
+        "storage mover"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.storagemover",
+          "resource_types": [
+            "storageMovers"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "storageMovers"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-confidential-ledger",
+      "display_name": "Azure Confidential Ledger",
+      "family": "security",
+      "summary": "Tamper-proof, append-only ledger backed by confidential computing.",
+      "aliases": [
+        "confidential ledger"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.confidentialledger",
+          "resource_types": [
+            "ledgers"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "ledgers"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-chaos-studio",
+      "display_name": "Azure Chaos Studio",
+      "family": "management",
+      "summary": "Chaos engineering service for fault injection and resilience testing.",
+      "aliases": [
+        "chaos studio",
+        "chaos engineering"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.chaos",
+          "resource_types": [
+            "experiments",
+            "targets"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "experiments"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-static-web-apps",
+      "display_name": "Azure Static Web Apps",
+      "family": "app-services",
+      "summary": "Hosting for static web apps with integrated serverless APIs.",
+      "aliases": [
+        "static web apps",
+        "swa"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.web",
+          "resource_types": [
+            "staticSites"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "staticSites"
+            ],
+            "prefer_when_skus": true
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Global CDN distribution; metadata is regional."
+      },
+      "capabilities": [
+        {
+          "key": "custom_auth",
+          "label": "Custom authentication providers",
+          "category": "security",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "private_endpoints",
+          "label": "Private endpoints",
+          "category": "networking",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-expressroute",
+      "display_name": "Azure ExpressRoute",
+      "family": "networking",
+      "summary": "Private connectivity from on-premises to Azure via dedicated circuits.",
+      "aliases": [
+        "expressroute",
+        "express route"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "expressRouteCircuits",
+            "expressRouteGateways"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "expressRouteCircuits",
+              "expressRouteGateways"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "zone-redundant",
+        "notes": "ExpressRoute gateways support zone-redundant SKUs."
+      },
+      "capabilities": [
+        {
+          "key": "zone_redundant_gateway",
+          "label": "Zone-redundant gateway SKUs",
+          "category": "resiliency",
+          "importance": "high",
+          "requires_zone_support": true,
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        },
+        {
+          "key": "fastpath",
+          "label": "FastPath (Ultra performance)",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-traffic-manager",
+      "display_name": "Azure Traffic Manager",
+      "family": "networking",
+      "summary": "DNS-based traffic load balancer for global traffic distribution.",
+      "aliases": [
+        "traffic manager",
+        "azure traffic manager"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.network",
+          "resource_types": [
+            "trafficmanagerprofiles"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "trafficmanagerprofiles"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Global service; not AZ-scoped."
+      },
+      "capabilities": [
+        {
+          "key": "multi_value_routing",
+          "label": "Multi-value routing",
+          "category": "networking",
+          "importance": "medium",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "service_key": "azure-relay",
+      "display_name": "Azure Relay",
+      "family": "integration",
+      "summary": "Hybrid connection service for exposing on-premises services to the cloud.",
+      "aliases": [
+        "relay",
+        "azure relay",
+        "hybrid connections"
+      ],
+      "providers": [
+        {
+          "namespace": "microsoft.relay",
+          "resource_types": [
+            "namespaces"
+          ],
+          "match_hints": {
+            "resource_type_contains": [
+              "namespaces"
+            ],
+            "prefer_when_skus": false
+          }
+        }
+      ],
+      "zone_support": {
+        "default": "regional",
+        "notes": "Regional service."
+      },
+      "capabilities": [
+        {
+          "key": "hybrid_connections",
+          "label": "Hybrid Connections",
+          "category": "integration",
+          "importance": "high",
+          "availability": {
+            "default": "available",
+            "regions": {}
+          }
+        }
+      ],
+      "evidence": []
+    }
+  ]
+}

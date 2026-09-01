@@ -1,0 +1,1 @@
+"""Shared helpers for the hosted Azure Functions scaffold."""
