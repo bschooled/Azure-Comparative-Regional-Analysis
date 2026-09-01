@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/azure-functions/python:4-python3.12@sha256:852c8bb1914e740fcefb3141cfe017a9a9aaec3fe0d4844117119b7b89cc2c01
+FROM mcr.microsoft.com/azure-functions/python:4-python3.12@sha256:b11f9dcf1450c1f2cb0c8a8be19cfbf41803722c4c869315342d78ca797527ae
 
 ARG PIP_INDEX_URL=https://packagefeedproxy.microsoft.io/pypi/simple
 
