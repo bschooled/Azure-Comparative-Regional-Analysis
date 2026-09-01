@@ -40,7 +40,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  FUNCTION_IMAGE_NAME: ${{ github.repository }}/function-app
+  FUNCTION_IMAGE_NAME: ${{ github.repository }}/function-app-container
   PIP_INDEX_URL: https://packagefeedproxy.microsoft.io/pypi/simple
 
 jobs:

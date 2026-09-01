@@ -35,7 +35,7 @@ Options:
   --use-prebuilt            Use pre-built artifacts from GHCR and GitHub Releases
                             instead of building locally. Requires gh CLI.
   --ghcr-image <ref>        Full GHCR image reference for the Function App container.
-                            Default: ghcr.io/<repo-owner>/<repo-name>/function-app:latest
+                            Default: ghcr.io/<repo-owner>/<repo-name>/function-app-container:latest
   --web-package-url <url>   URL to a pre-built web-package.zip. Default: latest
                             GitHub Release asset.
   --deployment-slot <name> Deployment target: qa, prod, or production.
@@ -2350,7 +2350,7 @@ if [[ "$skip_code" == "false" ]]; then
         if [[ -z "$ghcr_image" ]]; then
             # Derive GHCR image from the git remote (GHCR requires lowercase)
             repo_slug="$(git -C "$PROJECT_ROOT" remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/](.+)(\.git)?$#\1#' | sed 's/\.git$//' | tr '[:upper:]' '[:lower:]')"
-            ghcr_image="ghcr.io/${repo_slug}/function-app:latest"
+            ghcr_image="ghcr.io/${repo_slug}/function-app-container:latest"
         fi
         echo "Importing Function App container image from GHCR: $ghcr_image"
         az acr import \
