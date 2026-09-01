@@ -7,6 +7,10 @@ This standalone toolkit is not integrated with the application. It uses the
 Azure CLI for authenticated Azure Resource Manager requests and Python's
 standard library for HTTP, JSON, CSV, filtering, and fuzzy matching.
 
+Want to inspect the raw requests? See the
+[standalone API examples](api-examples/README.md) for Bash and PowerShell
+commands covering every data source used by the toolkit.
+
 ## 📦 Download only the toolkit
 
 You do not need to clone the full repository. Download
@@ -41,6 +45,7 @@ The archive contains one `foundry-pricing/` directory:
 | `foundry_pricing_query.sh` | Bash CSV search interface |
 | `foundry_pricing_query.ps1` | PowerShell CSV search interface |
 | `python/` | Shared dependency-free Python implementation |
+| `api-examples/README.md` | Raw API requests with Bash and PowerShell examples |
 
 ## ✨ What it collects
 
