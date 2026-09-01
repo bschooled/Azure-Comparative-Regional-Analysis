@@ -21,6 +21,7 @@ from typing import Any
 RETAIL_PRICES_URL = "https://prices.azure.com/api/retail/prices"
 DEFAULT_SERVICE = "Foundry Models"
 DEFAULT_API_VERSION = "2025-06-01"
+TOOLKIT_ROOT = Path(__file__).resolve().parent.parent
 CSV_COLUMNS = [
     "region",
     "service",
@@ -799,7 +800,7 @@ def authenticated_pricing(
 def default_output_dir(account: str | None, regions: list[str]) -> Path:
     region_label = "-".join(regions) if regions else "retail"
     account_label = account or "retail"
-    return Path("output") / "foundry-pricing" / f"{account_label}-{region_label}"
+    return TOOLKIT_ROOT / "output" / f"{account_label}-{region_label}"
 
 
 def print_summary(summary: dict[str, Any], output_dir: Path) -> None:

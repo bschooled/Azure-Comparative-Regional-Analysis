@@ -24,6 +24,7 @@ DEFAULT_COLUMNS = [
     "sku",
 ]
 SEARCH_COLUMNS = ["model_hint", "sku", "meter", "product", "provider"]
+TOOLKIT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def parse_args() -> argparse.Namespace:
@@ -91,10 +92,11 @@ def flatten(values: list[str]) -> list[str]:
 
 
 def find_default_csv() -> Path:
-    candidates = list(Path("output").glob("foundry-pricing/**/foundry-pricing.csv"))
+    candidates = list(TOOLKIT_ROOT.glob("output/**/foundry-pricing.csv"))
     if not candidates:
         raise FileNotFoundError(
-            "No foundry-pricing.csv found under output/. Pass one with --csv."
+            f"No foundry-pricing.csv found under {TOOLKIT_ROOT / 'output'}. "
+            "Pass one with --csv."
         )
     return max(candidates, key=lambda path: path.stat().st_mtime)
 

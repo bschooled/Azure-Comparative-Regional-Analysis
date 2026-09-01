@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-PYTHON_SCRIPT="${SCRIPT_DIR}/foundry_pricing_query.py"
+PYTHON_SCRIPT="${SCRIPT_DIR}/python/foundry_pricing_query.py"
 
 if command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 10))'; then
   exec python3 "$PYTHON_SCRIPT" "$@"

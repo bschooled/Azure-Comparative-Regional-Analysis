@@ -15,6 +15,7 @@ on:
       - 'web_app/**'
       - 'data/feature_catalog/**'
       - 'src/azure_compare_cli/**'
+      - 'scripts/foundry-pricing/**'
       - 'pyproject.toml'
       - '.npmrc'
       - '.trivyignore'
@@ -26,6 +27,7 @@ on:
       - 'web_app/**'
       - 'data/feature_catalog/**'
       - 'src/azure_compare_cli/**'
+      - 'scripts/foundry-pricing/**'
       - 'pyproject.toml'
       - '.npmrc'
       - '.trivyignore'
@@ -298,9 +300,53 @@ jobs:
           path: .deploy/web-package.zip
           retention-days: 90
 
+  build-foundry-toolkit:
+    name: Build Foundry Pricing Toolkit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Validate cross-platform entry points
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n \
+            scripts/foundry-pricing/foundry_pricing_probe.sh \
+            scripts/foundry-pricing/foundry_pricing_query.sh
+          python -m py_compile \
+            scripts/foundry-pricing/python/foundry_pricing_probe.py \
+            scripts/foundry-pricing/python/foundry_pricing_query.py
+          pwsh -NoProfile -File scripts/foundry-pricing/foundry_pricing_probe.ps1 --help
+          pwsh -NoProfile -File scripts/foundry-pricing/foundry_pricing_query.ps1 --help
+
+      - name: Assemble standalone toolkit package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .deploy/package
+          cp -R scripts/foundry-pricing .deploy/package/foundry-pricing
+          (
+            cd .deploy/package
+            zip -qr "$GITHUB_WORKSPACE/.deploy/foundry-pricing-toolkit.zip" \
+              foundry-pricing \
+              -x '*/output/*' '*/__pycache__/*' '*.pyc'
+          )
+
+      - name: Upload Foundry toolkit artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: foundry-pricing-toolkit
+          path: .deploy/foundry-pricing-toolkit.zip
+          retention-days: 90
+
   create-release:
     name: Create Release
-    needs: [build-function-container, build-web-package]
+    needs: [build-function-container, build-web-package, build-foundry-toolkit]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -310,6 +356,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: web-package
+          path: .deploy
+
+      - name: Download Foundry toolkit package
+        uses: actions/download-artifact@v8
+        with:
+          name: foundry-pricing-toolkit
           path: .deploy
 
       - name: Generate release tag
@@ -329,6 +381,8 @@ jobs:
 
           **Artifacts:**
           - \`web-package.zip\` — Pre-built web app deployment package
+          - \`foundry-pricing-toolkit.zip\` — Standalone Bash, PowerShell, and Python Foundry pricing tools
           - Function App container: \`${{ env.REGISTRY }}/${{ env.FUNCTION_IMAGE_NAME }}:${{ needs.build-function-container.outputs.image_tag }}\`" \
             --latest \
-            .deploy/web-package.zip
+            .deploy/web-package.zip \
+            .deploy/foundry-pricing-toolkit.zip

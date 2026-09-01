@@ -7,6 +7,30 @@ This standalone toolkit is not integrated with the application. It uses the
 Azure CLI for authenticated Azure Resource Manager requests and Python's
 standard library for HTTP, JSON, CSV, filtering, and fuzzy matching.
 
+## 📦 Download only the toolkit
+
+You do not need to clone the full repository. Download
+`foundry-pricing-toolkit.zip` from the
+[latest GitHub release](https://github.com/bschooled/Azure-Comparative-Regional-Analysis/releases/latest)
+and extract it:
+
+```bash
+gh release download \
+  --repo bschooled/Azure-Comparative-Regional-Analysis \
+  --pattern foundry-pricing-toolkit.zip
+unzip foundry-pricing-toolkit.zip
+```
+
+The archive contains one `foundry-pricing/` directory:
+
+| Entry point | Platform |
+|---|---|
+| `foundry_pricing_probe.sh` | Bash on Linux or macOS |
+| `foundry_pricing_probe.ps1` | PowerShell on Windows, Linux, or macOS |
+| `foundry_pricing_query.sh` | Bash CSV search interface |
+| `foundry_pricing_query.ps1` | PowerShell CSV search interface |
+| `python/` | Shared dependency-free Python implementation |
+
 ## ✨ What it collects
 
 | Data | Source | Authentication | Primary output |
@@ -29,6 +53,7 @@ it is not treated as an empty price list.
 - Python **3.10 or newer**
 - Azure CLI for model, quota, project, or authenticated pricing queries
 - An authenticated Azure CLI session: `az login`
+- Bash or PowerShell for the platform-specific launcher
 - Optional: Azure CLI `ml` extension for `--query-fireworks-catalog`
 
 No `jq`, `curl`, or third-party Python packages are required.
@@ -45,9 +70,30 @@ az login
 The shell entry points automatically locate `python3` or a compatible
 `python` executable.
 
+### Windows
+
+Install current Python and Azure CLI releases, then authenticate:
+
+```powershell
+az login
+```
+
+PowerShell launchers first try the Windows `py` launcher and then fall back to
+`python3` or `python`.
+
 ## 🚀 Collect pricing and model data
 
-Run these commands from the repository root.
+The examples below use Bash from the repository root. In the downloaded
+package, replace `./scripts/foundry-pricing/` with `./foundry-pricing/`.
+
+PowerShell users can replace the `.sh` suffix with `.ps1`, for example:
+
+```powershell
+.\foundry-pricing\foundry_pricing_probe.ps1 `
+  --resource-group rg-example-ai `
+  --account foundry-example `
+  --region eastus2
+```
 
 ### Foundry resource and its default region
 
@@ -160,13 +206,15 @@ pricing results.
 By default, files are written beneath:
 
 ```text
-output/foundry-pricing/<account-or-retail>-<regions>/
+<toolkit-directory>/output/<account-or-retail>-<regions>/
 ```
 
-This default directory is explicitly excluded by the repository's
-`.gitignore`, so generated JSON and CSV files cannot be accidentally committed.
-Use `--output-dir` to select another location; when choosing a path inside a
-Git repository, ensure that custom path is also ignored.
+The output directory is created next to the launchers, whether the toolkit is
+run from a repository checkout or an extracted release package. It is excluded
+by the toolkit's `.gitignore`, so generated JSON and CSV files cannot be
+accidentally committed. Use `--output-dir` to select another location; when
+choosing a path inside a Git repository, ensure that custom path is also
+ignored.
 
 | File | Contents |
 |---|---|
@@ -191,13 +239,14 @@ The primary pricing CSV includes:
 
 ## 🔍 Search the pricing CSV
 
-The query script uses the newest `output/**/foundry-pricing.csv` by default:
+The query script uses the newest
+`<toolkit-directory>/output/**/foundry-pricing.csv` by default:
 
 ```bash
 ./scripts/foundry-pricing/foundry_pricing_query.sh sol
 ```
 
-![Foundry Price Sheet](../../img/fdry-prc-output.png)
+![Foundry Price Sheet](assets/foundry-pricing-output.png)
 
 A fuzzy search can tolerate minor spelling errors:
 
@@ -227,7 +276,7 @@ Useful filters can be combined:
 
 # Machine-readable results from a specific file
 ./scripts/foundry-pricing/foundry_pricing_query.sh mistral \
-  --csv output/foundry-pricing/example/foundry-pricing.csv \
+  --csv scripts/foundry-pricing/output/example/foundry-pricing.csv \
   --json
 ```
 
@@ -252,7 +301,8 @@ Use `--columns` to choose table columns and `--limit` to control result count.
 | `--verbose` | Print external commands and pagination progress |
 
 Run `foundry_pricing_probe.sh --help` or
-`foundry_pricing_query.sh --help` for the complete option list.
+`foundry_pricing_query.sh --help` for the complete option list. PowerShell
+users can run the corresponding `.ps1` entry point with `--help`.
 
 ## 📚 Official Microsoft references
 
