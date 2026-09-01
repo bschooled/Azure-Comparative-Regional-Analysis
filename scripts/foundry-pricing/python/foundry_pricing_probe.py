@@ -197,6 +197,8 @@ def run_command(
         )
     except subprocess.TimeoutExpired as exc:
         raise ProbeError(f"Command timed out after {timeout}s: {' '.join(command)}") from exc
+    except OSError as exc:
+        raise ProbeError(f"Unable to start command {' '.join(command)}: {exc}") from exc
     if check and result.returncode != 0:
         message = result.stderr.strip() or result.stdout.strip() or "unknown error"
         raise ProbeError(f"Command failed ({result.returncode}): {' '.join(command)}\n{message}")
@@ -211,7 +213,13 @@ def run_az(
     subscription: str | None = None,
     check: bool = True,
 ) -> subprocess.CompletedProcess[str]:
-    command = ["az", *arguments]
+    az_executable = shutil.which("az")
+    if not az_executable:
+        raise ProbeError(
+            "Azure CLI is required unless --retail-only is used. "
+            "Install it from https://learn.microsoft.com/cli/azure/install-azure-cli"
+        )
+    command = [az_executable, *arguments]
     if subscription and "--subscription" not in arguments:
         command.extend(["--subscription", subscription])
     return run_command(command, timeout=timeout, verbose=verbose, check=check)
@@ -818,12 +826,6 @@ def main() -> int:
 
     if args.retail_only and not args.region:
         raise ProbeError("--retail-only requires at least one --region")
-    if not args.retail_only and not shutil.which("az"):
-        raise ProbeError(
-            "Azure CLI is required unless --retail-only is used. "
-            "Install it from https://learn.microsoft.com/cli/azure/install-azure-cli"
-        )
-
     account: dict[str, Any] = {}
     if not args.retail_only:
         login = run_az(
